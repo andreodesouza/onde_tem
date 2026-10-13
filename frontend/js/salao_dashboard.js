@@ -441,7 +441,7 @@ function inicializarMapaConfiguracoes() {
 
 async function carregarConfiguracoes() {
     try {
-        const response = await fetch(`${API_URL}/configuracoes/${EMPRESA_ID}`);
+        const response = await fetch(`${API_URL}/api/configuracoes/${EMPRESA_ID}`);
         if (!response.ok) return;
 
         const config = await response.json();

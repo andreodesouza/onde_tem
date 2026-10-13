@@ -4,8 +4,8 @@ from typing import Optional
 from pydantic import BaseModel
 
 # Corrige os imports para procurar na raiz do app (backend.app)
-from backend.app.database import get_db
-from backend.app.models import ConfiguracaoEmpresaModel, UsuarioModel
+from ..database import get_db
+from ..models import ConfiguracaoEmpresaModel, UsuarioModel
 
 router = APIRouter(prefix="/api/configuracoes", tags=["Configurações da Empresa"])
 
