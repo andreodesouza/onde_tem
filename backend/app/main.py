@@ -1,21 +1,24 @@
-import random
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
 from .database import engine, Base, get_db
-from .models import UsuarioModel
-from .schemas import UsuarioCadastro, UsuarioLogin, AtivacaoConta, SolicitarRecuperacaoSchema, RedefinirSenhaSchema
 from .saloes import saloes
 from .configuracoes_salao_dashboard.configuracoes_salao_dashboard import router as configuracoes_router
-from .email.email_codigo import enviar_email_codigo, enviar_email_codigo_recuperacao
-from .criptografia_senha.criptografia_senha import hash_senha, verificar_senha
+from .login.efetuar_login import router as login_router
+from .login.cadastro import router as cadastro_router
+from .login.redefinir_senha import router as redefinir_senha_router
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
 
-app.include_router(configuracoes_router)  # Inclui o router das configurações do salão
+app.include_router(configuracoes_router)  
+
+app.include_router(login_router)
+
+app.include_router(cadastro_router)  
+
+app.include_router(redefinir_senha_router)  
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,148 +31,6 @@ app.add_middleware(
 # --- SALÕES FICTÍCIOS ---
 saloes_db = saloes.saloes()
 
-
-# --- ROTAS DA API ---
-
-@app.post("/api/cadastro", status_code=status.HTTP_201_CREATED)
-def cadastrar_utilizador(usuario: UsuarioCadastro, db: Session = Depends(get_db)):
-    email_limpo = usuario.email.lower().strip()
-    
-    existente = db.query(UsuarioModel).filter(UsuarioModel.email == email_limpo).first()
-    if existente:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="Este e-mail já está registado."
-        )
-    
-    codigo_gerado = f"{random.randint(100000, 999999)}"
-    
-    novo_usuario = UsuarioModel(
-        email=email_limpo,
-        senha=hash_senha(usuario.senha),
-        tipo=usuario.tipo,
-        nome=usuario.nome,
-        telefone=usuario.telefone,
-        nome_fantasia=usuario.nome_fantasia,
-        razao_social=usuario.razao_social,
-        codigo_ativacao=codigo_gerado,
-        ativo=False
-    )
-    
-    db.add(novo_usuario)
-    db.commit()
-    db.refresh(novo_usuario)
-    
-    enviar_email_codigo(email_limpo, codigo_gerado)
-    
-    return {
-        "mensagem": "Registo efetuado com sucesso! Verifique o seu e-mail para obter o código de ativação.",
-        "email": email_limpo
-    }
-
-@app.post("/api/ativar")
-def ativar_conta(dados: AtivacaoConta, db: Session = Depends(get_db)):
-    email_limpo = dados.email.lower().strip()
-    codigo_limpo = dados.codigo.strip()
-    
-    usuario = db.query(UsuarioModel).filter(UsuarioModel.email == email_limpo).first()
-    
-    if not usuario:
-        raise HTTPException(status_code=404, detail="Utilizador não encontrado.")
-        
-    if usuario.ativo:
-        return {"mensagem": "Esta conta já se encontra ativa."}
-        
-    if usuario.codigo_ativacao != codigo_limpo:
-        raise HTTPException(status_code=400, detail="Código de ativação incorreto.")
-        
-    usuario.ativo = True
-    usuario.codigo_ativacao = None  
-    db.commit()
-    
-    return {"mensagem": "Conta ativada com sucesso! Já pode fazer login."}
-
-@app.post("/api/login")
-def efetuar_login(dados: UsuarioLogin, db: Session = Depends(get_db)):
-    email_limpo = dados.email.lower().strip()
-    
-    usuario = db.query(UsuarioModel).filter(UsuarioModel.email == email_limpo).first()
-    
-    # Valida se o utilizador existe e se a senha corresponde ao hash guardado
-    if not usuario or not verificar_senha(dados.senha, usuario.senha):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, 
-            detail="E-mail ou palavra-passe incorretos."
-        )
-        
-    if not usuario.ativo:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="Conta não ativada. Por favor, insira o código enviado por e-mail."
-        )
-        
-    return {
-        "token": "token-jwt-exemplo-seguro",
-        "usuario": {
-            "nome": usuario.nome or usuario.nome_fantasia,
-            "email": usuario.email,
-            "tipo": usuario.tipo
-        }
-    }
-
-@app.post("/api/solicitar-recuperacao")
-def solicitar_recuperacao(dados: SolicitarRecuperacaoSchema, db: Session = Depends(get_db)):
-    email_limpo = dados.email.lower().strip()
-    
-    usuario = db.query(UsuarioModel).filter(UsuarioModel.email == email_limpo).first()
-    if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="E-mail não encontrado."
-        )
-    
-    codigo_recuperacao = f"{random.randint(100000, 999999)}"
-    usuario.codigo_ativacao = codigo_recuperacao
-    db.commit()
-    
-    try:
-        enviar_email_codigo_recuperacao(email_limpo, codigo_recuperacao)
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail="Erro ao enviar e-mail de recuperação."
-        )
-        
-    return {
-        "mensagem": "Código de recuperação enviado com sucesso para o seu e-mail!",
-        "email": email_limpo
-    }
-
-@app.post("/api/redefinir-senha")
-def redefinir_senha(dados: RedefinirSenhaSchema, db: Session = Depends(get_db)):
-    email_limpo = dados.email.lower().strip()
-    codigo_limpo = dados.codigo.strip()
-    
-    usuario = db.query(UsuarioModel).filter(UsuarioModel.email == email_limpo).first()
-    
-    if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Utilizador não encontrado."
-        )
-        
-    if not usuario.codigo_ativacao or usuario.codigo_ativacao != codigo_limpo:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, 
-            detail="Código de recuperação inválido ou expirado."
-        )
-        
-    # Atualiza a senha encriptando a nova palavra-passe
-    usuario.senha = hash_senha(dados.nova_senha)
-    usuario.codigo_ativacao = None
-    db.commit()
-    
-    return {"mensagem": "Senha redefinida com sucesso! Já pode fazer login com a nova senha."}
 
 # --- ROTA PARA LISTAR TODOS OS SALÕES ---
 @app.get("/api/saloes")
