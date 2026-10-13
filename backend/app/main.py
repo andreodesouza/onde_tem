@@ -1,8 +1,6 @@
 import bcrypt
 import os
 from dotenv import load_dotenv
-
-from backend.app.configuracoes_salao_dashboard import configuracoes_salao_dashboard
 load_dotenv()
 import random
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -11,7 +9,6 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
-# Importa da própria estrutura do app
 from .database import engine, Base, get_db
 from .models import UsuarioModel
 from .schemas import UsuarioCadastro, UsuarioLogin, AtivacaoConta, SolicitarRecuperacaoSchema, RedefinirSenhaSchema
