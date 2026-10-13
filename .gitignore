@@ -4,7 +4,8 @@ backend/db.sqlite3
 Thumbs.db
 .env
 .venv2/
-backend/app/email_templates/__pycache__/
+backend/app/email/email_templates/__pycache__/
 backend/app/saloes/__pycache__/
 backend/app/configuracoes_salao_dashboard/__pycache__/
+backend/app/email/__pycache__/
 .cursor/
