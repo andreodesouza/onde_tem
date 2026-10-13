@@ -6,7 +6,6 @@ import random
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
 import sib_api_v3_sdk
 from sib_api_v3_sdk.rest import ApiException
 from .database import engine, Base, get_db
