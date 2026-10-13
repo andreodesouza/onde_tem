@@ -1,4 +1,3 @@
-import bcrypt
 import random
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,6 +8,7 @@ from .schemas import UsuarioCadastro, UsuarioLogin, AtivacaoConta, SolicitarRecu
 from .saloes import saloes
 from .configuracoes_salao_dashboard.configuracoes_salao_dashboard import router as configuracoes_router
 from .email.email_codigo import enviar_email_codigo, enviar_email_codigo_recuperacao
+from .criptografia_senha.criptografia_senha import hash_senha, verificar_senha
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
@@ -16,7 +16,6 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
 
 app.include_router(configuracoes_router)  # Inclui o router das configurações do salão
-
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,20 +28,6 @@ app.add_middleware(
 # --- SALÕES FICTÍCIOS ---
 saloes_db = saloes.saloes()
 
-
-# --- CRIPTOGRAFIA DA SENHA  ---
-def hash_senha(senha: str) -> str:
-    # Converte a senha para bytes, gera o salt e faz o hash (trunca com segurança nos 72 bytes)
-    senha_bytes = senha.encode('utf-8')[:72]
-    hashed = bcrypt.hashpw(senha_bytes, bcrypt.gensalt())
-    return hashed.decode('utf-8')
-
-def verificar_senha(senha_plain: str, senha_hash: str) -> bool:
-    try:
-        senha_bytes = senha_plain.encode('utf-8')[:72]
-        return bcrypt.checkpw(senha_bytes, senha_hash.encode('utf-8'))
-    except Exception:
-        return False   
 
 # --- ROTAS DA API ---
 
