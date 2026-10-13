@@ -6,5 +6,5 @@ Thumbs.db
 .venv2/
 backend/app/email_templates/__pycache__/
 backend/app/saloes/__pycache__/
-backend/app/router/__pycache__/
+backend/app/configuracoes_salao_dashboard/__pycache__/
 .cursor/

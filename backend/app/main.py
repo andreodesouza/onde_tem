@@ -1,6 +1,8 @@
 import bcrypt
 import os
 from dotenv import load_dotenv
+
+from backend.app.configuracoes_salao_dashboard import configuracoes_salao_dashboard
 load_dotenv()
 import random
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -15,14 +17,14 @@ from .models import UsuarioModel
 from .schemas import UsuarioCadastro, UsuarioLogin, AtivacaoConta, SolicitarRecuperacaoSchema, RedefinirSenhaSchema
 from .email_templates import email_ativacao, email_recuperacao
 from .saloes import saloes
-from .router.configuracoes_router import router as configuracoes_router
+from .configuracoes_salao_dashboard.configuracoes_salao_dashboard import router as configuracoes_router
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
 
-app.include_router(configuracoes_router)
+app.include_router(configuracoes_router)  # Inclui o router das configurações do salão
 
 app.add_middleware(
     CORSMiddleware,
