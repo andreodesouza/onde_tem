@@ -25,3 +25,13 @@ class RedefinirSenhaSchema(BaseModel):
     email: str
     codigo: str
     nova_senha: str    
+
+class ConfiguracaoUpdateSchema(BaseModel):
+    nome_fantasia: Optional[str] = None
+    razao_social: Optional[str] = None
+    telefone_contato: Optional[str] = None
+    categorias: Optional[str] = None
+    endereco: Optional[str] = None
+    descricao: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None

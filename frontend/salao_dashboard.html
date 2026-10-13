@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/salao_dashboard.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
@@ -28,6 +30,7 @@
             <button class="tab-btn active" onclick="mostrarSessao('agendamentos', this)">Agendamentos</button>
             <button class="tab-btn" onclick="mostrarSessao('servicos', this)">Serviços</button>
             <button class="tab-btn" onclick="mostrarSessao('profissionais', this)">Profissionais</button>
+            <button class="tab-btn" onclick="mostrarSessao('configuracoes', this)">Configurações</button>
         </nav>
 
         <div class="navbar-right">
@@ -37,20 +40,15 @@
     </header>
 
     <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
-    <main class="dashboard-main-content">
-        <!-- Aqui continuam os seus Cards de Métricas e as <section> de agendamentos, serviços e profissionais -->
-    </main>
-    </div>
-
     <main class="dashboard-container">
         <!-- Banner de Contexto do Salão -->
         <section class="salon-profile-strip">
             <div class="profile-info">
-                <h2>Studio Bella Donna</h2>
-                <p>Cabelo • Unhas • Sobrancelhas | 📍 Av. Saquarema, 1200 - Porto da Roça</p>
+                <h2 id="salao-nome-fantasia">A carregar...</h2>
+                <p id="salao-detalhes">Estabelecimento parceiro Onde Tem?</p>
             </div>
-            <div class="profile-badge">
-                ★ 4.9 (128 avaliações)
+            <div class="profile-badge" id="salao-avaliacao" style="display: none;">
+                <!-- Preenchido via JS se houver avaliações -->
             </div>
         </section>
 
@@ -66,7 +64,7 @@
             </div>
             <div class="metric-card">
                 <span class="metric-title">Profissionais Vinculadas</span>
-                <span class="metric-value default-color" id="total-profissionais">3</span>
+                <span class="metric-value default-color" id="total-profissionais">0</span>
             </div>
         </section>
 
@@ -92,7 +90,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Linhas geradas via JavaScript -->
+                        <!-- Vazio - Aguardando dados reais -->
                     </tbody>
                 </table>
             </div>
@@ -169,7 +167,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Renderizado via JS -->
+                        <!-- Vazio - Aguardando dados reais -->
                     </tbody>
                 </table>
             </div>
@@ -180,7 +178,7 @@
             <div class="card-header">
                 <div>
                     <h3 class="card-title">Equipe e Profissionais Vinculadas</h3>
-                    <p class="card-subtitle">Cadastre e gerencie as colaboradoras ativas no Studio</p>
+                    <p class="card-subtitle">Cadastre e gerencie as colaboradoras ativas no estabelecimento</p>
                 </div>
             </div>
 
@@ -223,9 +221,155 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Renderizado via JS -->
+                        <!-- Vazio - Aguardando dados reais -->
                     </tbody>
                 </table>
+            </div>
+        </section>
+
+        <!-- Sessão de Configurações do Salão -->
+        <section id="configuracoes" class="sessao-painel content-card" style="display: none;">
+            <div class="card-header">
+                <div>
+                    <h3 class="card-title">Configurações do Estabelecimento</h3>
+                    <p class="card-subtitle">Gerencie as informações públicas, categorias e localização do seu salão</p>
+                </div>
+            </div>
+
+            <div style="padding: 1.8rem;">
+                <form id="form-configuracoes" onsubmit="salvarConfiguracoes(event)"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.2rem;">
+
+                    <div>
+                        <label
+                            style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Nome
+                            Fantasia</label>
+                        <input type="text" id="conf-nome-fantasia" placeholder="Ex: Salão do André" required
+                            style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px;">
+                    </div>
+
+                    <div>
+                        <label
+                            style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Razão
+                            Social</label>
+                        <input type="text" id="conf-razao-social" placeholder="Ex: Salão do André LTDA" required
+                            style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px;">
+                    </div>
+
+                    <div>
+                        <label
+                            style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Telefone
+                            / WhatsApp de Contato</label>
+                        <input type="text" id="conf-telefone" placeholder="(22) 99999-9999"
+                            style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px;">
+                    </div>
+
+                    <!-- Categorias Selecionáveis por Checkbox -->
+                    <div
+                        style="grid-column: 1 / -1; background: #FAFBFD; padding: 1rem; border-radius: 12px; border: 1px solid var(--border-light);">
+                        <label
+                            style="display:block; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Categorias
+                            de Atendimento (Selecione as especialidades)</label>
+                        <div id="grupo-categorias" style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                            <label
+                                style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="categorias" value="Cabelo"> Cabelo
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="categorias" value="Unhas"> Unhas
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="categorias" value="Sobrancelhas"> Sobrancelhas
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="categorias" value="Maquilhagem"> Maquilhagem
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="categorias" value="Depilação"> Depilação
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;">
+                                <input type="checkbox" name="categorias" value="Estética"> Estética
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Endereço com suporte a busca dinâmica -->
+                    <!-- Endereço com Autocomplete e Mapa Interativo Arrastável -->
+                    <div style="grid-column: 1 / -1; position: relative;">
+                        <label
+                            style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Endereço
+                            do Estabelecimento (Digite e ajuste no mapa)</label>
+                        <input type="text" id="conf-endereco" placeholder="Ex: Av. Saquarema, 1200 - Porto da Roça"
+                            autocomplete="off"
+                            style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px;">
+
+                        <!-- Campos ocultos para guardar a latitude e longitude exatas -->
+                        <input type="hidden" id="conf-lat">
+                        <input type="hidden" id="conf-lng">
+
+                        <!-- Contentor do Mapa Interativo -->
+                        <div id="mapa-config-container"
+                            style="margin-top: 10px; width: 100%; height: 220px; border-radius: 10px; border: 1px solid var(--border-light); display: none; z-index: 1;">
+                        </div>
+                        <div style="margin-top: 6px; font-size: 0.78rem; color: var(--text-secondary);">
+                            <span>📍</span> Selecione o endereço na lista ou arraste o marcador no mapa para ajustar a
+                            localização exata.
+                        </div>
+                    </div>
+
+                    <div style="grid-column: 1 / -1;">
+                        <label
+                            style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Descrição
+                            Curta sobre o Espaço</label>
+                        <textarea id="conf-descricao" rows="3"
+                            placeholder="Conte um pouco sobre os diferenciais do seu salão..."
+                            style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px; font-family: 'Poppins', sans-serif;"></textarea>
+                    </div>
+                    <!-- Bloco de Alteração de Senha -->
+                    <div
+                        style="grid-column: 1 / -1; border-top: 1px solid var(--border-light); padding-top: 1.5rem; margin-top: 0.5rem;">
+                        <h4
+                            style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
+                            Segurança da Conta</h4>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                            <div>
+                                <label
+                                    style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Senha
+                                    Atual</label>
+                                <input type="password" id="conf-senha-atual" placeholder="••••••••"
+                                    autocomplete="current-password"
+                                    style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px;">
+                            </div>
+                            <div>
+                                <label
+                                    style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Nova
+                                    Senha</label>
+                                <input type="password" id="conf-senha-nova" placeholder="Mínimo 6 carateres"
+                                    autocomplete="new-password" minlength="6"
+                                    style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px;">
+                            </div>
+                            <div>
+                                <label
+                                    style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Confirmar
+                                    Nova Senha</label>
+                                <input type="password" id="conf-senha-confirma" placeholder="Repita a nova senha"
+                                    autocomplete="new-password" minlength="6"
+                                    style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 1rem;">
+                        <button type="submit" class="btn-login-profile" style="height: 44px; padding: 0 2rem;">Salvar
+                            Alterações</button>
+                    </div>
+                </form>
             </div>
         </section>
     </main>

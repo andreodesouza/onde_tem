@@ -15,11 +15,14 @@ from .models import UsuarioModel
 from .schemas import UsuarioCadastro, UsuarioLogin, AtivacaoConta, SolicitarRecuperacaoSchema, RedefinirSenhaSchema
 from .email_templates import email_ativacao, email_recuperacao
 from .saloes import saloes
+from .router.configuracoes_router import router as configuracoes_router
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
+
+app.include_router(configuracoes_router)
 
 app.add_middleware(
     CORSMiddleware,
