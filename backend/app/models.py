@@ -32,3 +32,23 @@ class ConfiguracaoEmpresaModel(Base):
     atualizado_em = Column(DateTime, server_default=func.now(), onupdate=func.now())
     foto_url = Column(String, nullable=True)             
     horario_funcionamento = Column(String, nullable=True)
+
+class ProfissionalModel(Base):
+    __tablename__ = "profissionais"
+
+    id = Column(Integer, primary_key=True, index=True)
+    empresa_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    nome = Column(String, nullable=False)
+    especialidade = Column(String, nullable=False)
+    telefone = Column(String, nullable=True)
+
+class ServicoModel(Base):
+    __tablename__ = "servicos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    empresa_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    nome = Column(String, nullable=False)
+    preco = Column(Float, nullable=False)
+    duracao_minutos = Column(Integer, nullable=False)
+    profissional_id = Column(Integer, ForeignKey("profissionais.id"), nullable=True)
+    descricao = Column(Text, nullable=True)
