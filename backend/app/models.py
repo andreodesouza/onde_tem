@@ -30,3 +30,5 @@ class ConfiguracaoEmpresaModel(Base):
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     atualizado_em = Column(DateTime, server_default=func.now(), onupdate=func.now())
+    foto_url = Column(String, nullable=True)             
+    horario_funcionamento = Column(String, nullable=True)

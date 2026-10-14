@@ -6,11 +6,17 @@ from .login.efetuar_login import router as login_router
 from .login.cadastro import router as cadastro_router
 from .login.redefinir_senha import router as redefinir_senha_router
 from .saloes.saloes import router as saloes_router
+from fastapi.staticfiles import StaticFiles
+
+
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
+
+# Permite aceder aos ficheiros da pasta static através de /static/...
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(configuracoes_router)  
 

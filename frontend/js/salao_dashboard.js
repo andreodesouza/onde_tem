@@ -72,6 +72,9 @@ try {
 const EMPRESA_ID = dadosUsuario.id || localStorage.getItem('empresa_id') || 67;
 const NOME_EMPRESA = dadosUsuario.nome_fantasia || dadosUsuario.nome || "Meu Salão";
 
+// Variável para guardar temporariamente o ficheiro de imagem selecionado
+let ficheiroFotoSelecionado = null;
+
 // Inicialização única ao carregar o DOM
 document.addEventListener('DOMContentLoaded', () => {
     const elNomeSalao = document.getElementById('salao-nome-fantasia');
@@ -80,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (elNomeSalao) elNomeSalao.textContent = NOME_EMPRESA;
     if (elDetalhes) elDetalhes.textContent = `Estabelecimento Parceiro | ID: ${EMPRESA_ID}`;
 
-    // Carrega dados iniciais
     carregarAgendamentos();
     carregarProfissionais();
     carregarServicos();
@@ -100,7 +102,6 @@ function mostrarSessao(sessaoId, btnElement) {
         btnElement.classList.add('active');
     }
 
-    // Se abrir a aba de configurações, corrige o tamanho do mapa Leaflet se já estiver inicializado
     if (sessaoId === 'configuracoes' && typeof mapaConfig !== 'undefined' && mapaConfig) {
         setTimeout(() => { mapaConfig.invalidateSize(); }, 200);
     }
@@ -110,7 +111,7 @@ function mostrarSessao(sessaoId, btnElement) {
 async function carregarAgendamentos() {
     try {
         const response = await fetch(`${API_URL}/api/agendamentos/empresa/${EMPRESA_ID}`);
-        if (!response.ok) throw new Error('Falha ao carregar agendamentos');
+        if (!response.ok) throw new Error();
         const agendamentos = await response.json();
         renderizarTabelaAgendamentos(agendamentos);
     } catch {
@@ -148,7 +149,6 @@ function renderizarTabelaAgendamentos(agendamentos) {
                 ${ag.status === 'pendente' ? `<button class="btn-action btn-confirmar" onclick="alterarStatusAgendamento(${ag.id}, 'confirmado')">Confirmar</button>` : ''}
                 ${ag.status === 'pendente' ? `<button class="btn-action btn-recusar" onclick="alterarStatusAgendamento(${ag.id}, 'recusado')">Recusar</button>` : ''}
                 ${ag.status === 'confirmado' ? `<button class="btn-action btn-concluir" onclick="alterarStatusAgendamento(${ag.id}, 'concluido')">Concluir</button>` : ''}
-                ${(ag.status === 'confirmado' || ag.status === 'pendente') ? `<button class="btn-action btn-cancelar" onclick="alterarStatusAgendamento(${ag.id}, 'cancelado')">Cancelar</button>` : ''}
             </td>
         `;
         tbody.appendChild(tr);
@@ -220,7 +220,6 @@ function renderizarTabelaProfissionais(lista) {
 
 async function salvarProfissional(event) {
     event.preventDefault();
-
     const payload = {
         nome: document.getElementById('prof-nome').value.trim(),
         especialidade: document.getElementById('prof-especialidade').value.trim(),
@@ -298,7 +297,6 @@ function atualizarSelectProfissionais(profissionais) {
 
 async function salvarServico(event) {
     event.preventDefault();
-
     const payload = {
         nome: document.getElementById('serv-nome').value.trim(),
         preco: parseFloat(document.getElementById('serv-preco').value),
@@ -326,6 +324,25 @@ async function salvarServico(event) {
     }
 }
 
+// --- FOTO E UPLOAD ---
+function prepararUploadFoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    ficheiroFotoSelecionado = file;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const imgPreview = document.getElementById('img-preview-salao');
+        const placeholder = document.getElementById('preview-placeholder');
+
+        imgPreview.src = e.target.result;
+        imgPreview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
 // --- CONFIGURAÇÕES E MAPA INTERATIVO ---
 let mapaConfig = null;
 let marcadorConfig = null;
@@ -345,7 +362,7 @@ function inicializarOuAtualizarMapa(lat, lng) {
 
         marcadorConfig = L.marker([lat, lng], { draggable: true }).addTo(mapaConfig);
 
-        marcadorConfig.on('dragend', function (event) {
+        marcadorConfig.on('dragend', function () {
             const posicao = marcadorConfig.getLatLng();
             document.getElementById('conf-lat').value = posicao.lat;
             document.getElementById('conf-lng').value = posicao.lng;
@@ -452,6 +469,28 @@ async function carregarConfiguracoes() {
         document.getElementById('conf-endereco').value = config.endereco || '';
         document.getElementById('conf-descricao').value = config.descricao || '';
 
+        // Carrega a foto se existir
+        if (config.foto_url) {
+            const imgPreview = document.getElementById('img-preview-salao');
+            const placeholder = document.getElementById('preview-placeholder');
+            imgPreview.src = config.foto_url;
+            imgPreview.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+        }
+
+        // Divide e preenche o horário (ex: "Segunda a Sábado, das 09:00 às 19:00")
+        if (config.horario_funcionamento) {
+            const partes = config.horario_funcionamento.split(',');
+            if (partes.length >= 2) {
+                document.getElementById('conf-dias-semana').value = partes[0].trim();
+                const horas = partes[1].match(/\d{2}:\d{2}/g);
+                if (horas && horas.length >= 2) {
+                    document.getElementById('conf-hora-inicio').value = horas[0];
+                    document.getElementById('conf-hora-fim').value = horas[1];
+                }
+            }
+        }
+
         if (config.latitude && config.longitude) {
             document.getElementById('conf-lat').value = config.latitude;
             document.getElementById('conf-lng').value = config.longitude;
@@ -476,6 +515,32 @@ async function salvarConfiguracoes(event) {
         .map(chk => chk.value)
         .join(' • ');
 
+    const dias = document.getElementById('conf-dias-semana').value;
+    const hInicio = document.getElementById('conf-hora-inicio').value;
+    const hFim = document.getElementById('conf-hora-fim').value;
+    const horarioFormatado = `${dias}, das ${hInicio} às ${hFim}`;
+
+    let fotoUrlFinal = null;
+
+    // Se o usuário selecionou uma nova foto, faz o upload primeiro
+    if (ficheiroFotoSelecionado) {
+        const formData = new FormData();
+        formData.append("file", ficheiroFotoSelecionado);
+
+        try {
+            const resUpload = await fetch(`${API_URL}/api/configuracoes/upload-foto/${EMPRESA_ID}`, {
+                method: "POST",
+                body: formData
+            });
+            if (resUpload.ok) {
+                const dadosUpload = await resUpload.json();
+                fotoUrlFinal = dadosUpload.foto_url;
+            }
+        } catch (err) {
+            console.warn("Erro ao enviar foto, mantendo anterior.");
+        }
+    }
+
     const payload = {
         nome_fantasia: document.getElementById('conf-nome-fantasia').value.trim(),
         razao_social: document.getElementById('conf-razao-social').value.trim(),
@@ -483,9 +548,14 @@ async function salvarConfiguracoes(event) {
         categorias: categoriasSelecionadas,
         endereco: document.getElementById('conf-endereco').value.trim(),
         descricao: document.getElementById('conf-descricao').value.trim(),
+        horario_funcionamento: horarioFormatado,
         latitude: document.getElementById('conf-lat').value ? parseFloat(document.getElementById('conf-lat').value) : null,
         longitude: document.getElementById('conf-lng').value ? parseFloat(document.getElementById('conf-lng').value) : null
     };
+
+    if (fotoUrlFinal) {
+        payload.foto_url = fotoUrlFinal;
+    }
 
     try {
         const response = await fetch(`${API_URL}/api/configuracoes/${EMPRESA_ID}`, {
@@ -496,25 +566,8 @@ async function salvarConfiguracoes(event) {
 
         if (response.ok) {
             alert('Configurações atualizadas com sucesso!');
-
-            // Atualiza o nome exibido no topo instantaneamente
             const elNomeSalao = document.getElementById('salao-nome-fantasia');
             if (elNomeSalao) elNomeSalao.textContent = payload.nome_fantasia;
-
-            // Atualiza também no localStorage para persistir ao navegar ou recarregar
-            try {
-                let dadosLocais = JSON.parse(localStorage.getItem('usuarioLogado') || localStorage.getItem('usuario_logado') || '{}');
-                dadosLocais.nome_fantasia = payload.nome_fantasia;
-                dadosLocais.nome = payload.nome_fantasia;
-
-                if (localStorage.getItem('usuarioLogado')) {
-                    localStorage.setItem('usuarioLogado', JSON.stringify(dadosLocais));
-                } else if (localStorage.getItem('usuario_logado')) {
-                    localStorage.setItem('usuario_logado', JSON.stringify(dadosLocais));
-                }
-            } catch (err) {
-                console.warn("Não foi possível atualizar o localStorage local.");
-            }
         } else {
             const erro = await response.json();
             alert(`Erro ao salvar: ${erro.detail || 'Tente novamente.'}`);
@@ -527,12 +580,7 @@ async function salvarConfiguracoes(event) {
 
 function fazerLogout() {
     if (confirm("Deseja realmente sair da conta do estabelecimento?")) {
-        localStorage.removeItem('empresa_id');
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuarioLogado');
-        localStorage.removeItem('usuario_logado');
-        sessionStorage.clear();
-
+        localStorage.clear();
         window.location.href = 'login.html';
     }
 }

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+import shutil
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import Optional
 from pydantic import BaseModel
 
-# Corrige os imports para procurar na raiz do app (backend.app)
 from ..database import get_db
 from ..models import ConfiguracaoEmpresaModel, UsuarioModel
 
@@ -16,6 +17,7 @@ class ConfiguracaoUpdateSchema(BaseModel):
     categorias: Optional[str] = None
     endereco: Optional[str] = None
     descricao: Optional[str] = None
+    horario_funcionamento: Optional[str] = None  # NOVO CAMPO DE HORÁRIO
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
@@ -32,6 +34,8 @@ def obter_configuracoes(empresa_id: int, db: Session = Depends(get_db)):
             "endereco": "",
             "categorias": "",
             "descricao": "",
+            "horario_funcionamento": "",
+            "foto_url": "",
             "latitude": None,
             "longitude": None
         }
@@ -43,6 +47,8 @@ def obter_configuracoes(empresa_id: int, db: Session = Depends(get_db)):
         "endereco": config.endereco,
         "categorias": config.categorias,
         "descricao": config.descricao,
+        "horario_funcionamento": config.horario_funcionamento,
+        "foto_url": config.foto_url,
         "latitude": config.latitude,
         "longitude": config.longitude
     }
@@ -72,3 +78,43 @@ def atualizar_configuracoes(empresa_id: int, dados: ConfiguracaoUpdateSchema, db
     db.refresh(config)
 
     return {"mensagem": "Configurações atualizadas com sucesso!"}
+
+# NOVO ENDPOINT DE UPLOAD DE FOTO
+@router.post("/upload-foto/{empresa_id}")
+async def upload_foto_salao(
+    empresa_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Apenas ficheiros de imagem são permitidos.")
+    
+    try:
+        file_bytes = await file.read()
+        extensao = file.filename.split(".")[-1]
+        nome_ficheiro = f"salao_{empresa_id}.{extensao}"
+        
+        # Garante que a pasta estática local existe
+        os.makedirs("static/uploads", exist_ok=True)
+        caminho_local = f"static/uploads/{nome_ficheiro}"
+        
+        with open(caminho_local, "wb") as buffer:
+            buffer.write(file_bytes)
+        
+        # URL relativo/público que será guardado na base de dados
+        foto_url = f"/{caminho_local}"
+        
+        config = db.query(ConfiguracaoEmpresaModel).filter(ConfiguracaoEmpresaModel.empresa_id == empresa_id).first()
+        if config:
+            config.foto_url = foto_url
+        else:
+            config = ConfiguracaoEmpresaModel(empresa_id=empresa_id, foto_url=foto_url)
+            db.add(config)
+            
+        db.commit()
+        db.refresh(config)
+        
+        return {"mensagem": "Foto enviada com sucesso!", "foto_url": foto_url}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao processar imagem: {str(e)}")
