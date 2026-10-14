@@ -3,13 +3,17 @@ from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import Optional
 from pydantic import BaseModel
+from supabase import create_client, Client
 
 from ..database import get_db
 from ..models import ConfiguracaoEmpresaModel, UsuarioModel
 
-# ⚠️ Importe a sua instância do Supabase configurada no projeto
-# Exemplo: from ..database import supabase (ou ajuste para o local onde criou o create_client)
-# from ..main import supabase 
+# Carrega as credenciais do ambiente (certifique-se de que estão no seu .env ou Render)
+SUPABASE_URL = os.getenv("SUPABASE_URL", "O_SEU_URL_DO_SUPABASE")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "A_SUA_CHAVE_DO_SUPABASE")
+
+# Cria a instância correta do cliente
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 router = APIRouter(prefix="/api/configuracoes", tags=["Configurações da Empresa"])
 
