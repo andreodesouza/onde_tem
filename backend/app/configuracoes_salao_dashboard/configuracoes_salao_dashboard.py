@@ -1,5 +1,4 @@
 import os
-import shutil
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -7,6 +6,10 @@ from pydantic import BaseModel
 
 from ..database import get_db
 from ..models import ConfiguracaoEmpresaModel, UsuarioModel
+
+# ⚠️ Importe a sua instância do Supabase configurada no projeto
+# Exemplo: from ..database import supabase (ou ajuste para o local onde criou o create_client)
+# from ..main import supabase 
 
 router = APIRouter(prefix="/api/configuracoes", tags=["Configurações da Empresa"])
 
@@ -17,7 +20,7 @@ class ConfiguracaoUpdateSchema(BaseModel):
     categorias: Optional[str] = None
     endereco: Optional[str] = None
     descricao: Optional[str] = None
-    horario_funcionamento: Optional[str] = None  # NOVO CAMPO DE HORÁRIO
+    horario_funcionamento: Optional[str] = None
     latitude: Optional[float] = None
     longitude: Optional[float] = None
 
@@ -79,9 +82,8 @@ def atualizar_configuracoes(empresa_id: int, dados: ConfiguracaoUpdateSchema, db
 
     return {"mensagem": "Configurações atualizadas com sucesso!"}
 
-# NOVO ENDPOINT DE UPLOAD DE FOTO
 @router.post("/upload-foto/{empresa_id}")
-async def upload_foto_salao(
+async def upload_foto_supabase(
     empresa_id: int,
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
@@ -90,20 +92,26 @@ async def upload_foto_salao(
         raise HTTPException(status_code=400, detail="Apenas ficheiros de imagem são permitidos.")
     
     try:
+        # 1. Lê os bytes do ficheiro enviado
         file_bytes = await file.read()
         extensao = file.filename.split(".")[-1]
-        nome_ficheiro = f"salao_{empresa_id}.{extensao}"
+        caminho_no_bucket = f"salao_{empresa_id}.{extensao}"
         
-        # Garante que a pasta estática local existe
-        os.makedirs("static/uploads", exist_ok=True)
-        caminho_local = f"static/uploads/{nome_ficheiro}"
+        bucket_name = "saloes-fotos" # Nome do bucket criado no painel do Supabase Storage
         
-        with open(caminho_local, "wb") as buffer:
-            buffer.write(file_bytes)
+        # 2. Faz o upload direto para o Supabase Storage (substitui se já existir com upsert)
+        supabase.storage.from_(bucket_name).upload(
+            path=caminho_no_bucket,
+            file=file_bytes,
+            file_options={"content-type": file.content_type, "upsert": "true"}
+        )
         
-        # URL relativo/público que será guardado na base de dados
-        foto_url = f"/{caminho_local}"
+        # 3. Obtém o link público definitivo gerado pelo Supabase
+        public_url_response = supabase.storage.from_(bucket_name).get_public_url(caminho_no_bucket)
         
+        foto_url = public_url_response if isinstance(public_url_response, str) else public_url_response.get("publicUrl")
+
+        # 4. Guarda o link URL na base de dados PostgreSQL
         config = db.query(ConfiguracaoEmpresaModel).filter(ConfiguracaoEmpresaModel.empresa_id == empresa_id).first()
         if config:
             config.foto_url = foto_url
@@ -114,7 +122,7 @@ async def upload_foto_salao(
         db.commit()
         db.refresh(config)
         
-        return {"mensagem": "Foto enviada com sucesso!", "foto_url": foto_url}
+        return {"mensagem": "Foto enviada para o Supabase com sucesso!", "foto_url": foto_url}
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao processar imagem: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erro ao enviar imagem para o Supabase: {str(e)}")
