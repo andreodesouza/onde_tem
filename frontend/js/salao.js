@@ -90,10 +90,6 @@ if (!usuarioLogadoStr) {
 // CÓDIGO PRINCIPAL (só roda se estiver logado)
 // ==========================================
 
-const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-  ? "http://127.0.0.1:8000"
-  : "process.env.API_RENDER";
-
 let carrinhoServicos = [];
 
 document.addEventListener("DOMContentLoaded", () => {
