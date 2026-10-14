@@ -13,7 +13,40 @@ const usuarioLogadoStr = localStorage.getItem('usuarioLogado') ||
     sessionStorage.getItem('usuarioLogado');
 
 if (!usuarioLogadoStr) {
-    window.location.href = 'login.html';
+    const modalOverlay = document.createElement('div');
+    modalOverlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px);
+        display: flex; justify-content: center; align-items: center; z-index: 99999;
+        font-family: 'Poppins', sans-serif; animation: fadeIn 0.3s ease;
+    `;
+
+    const modalBox = document.createElement('div');
+    modalBox.style.cssText = `
+        background: #ffffff; padding: 30px; border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); width: 90%; max-width: 380px;
+        text-align: center; animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    `;
+
+    modalBox.innerHTML = `
+        <div style="font-size: 40px; margin-bottom: 12px;">🔒</div>
+        <h3 style="color: #2d3748; font-size: 20px; font-weight: 600; margin-bottom: 8px;">Acesso Restrito</h3>
+        <p style="color: #718096; font-size: 14px; margin-bottom: 20px; line-height: 1.5;">
+            Você precisa estar conectado à sua conta de salão para aceder a esta página.
+        </p>
+        <button id="btn-ir-login" style="
+            background: #482868; color: white; border: none; width: 100%;
+            padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+        ">Fazer Login</button>
+    `;
+
+    document.body.appendChild(modalOverlay);
+    modalOverlay.appendChild(modalBox);
+
+    document.getElementById('btn-ir-login').addEventListener('click', () => {
+        window.location.href = 'login.html';
+    });
+    setTimeout(() => { window.location.href = 'login.html'; }, 3000);
     throw new Error("Acesso negado.");
 }
 
@@ -26,6 +59,7 @@ try {
 
 const EMPRESA_ID = dadosUsuario.id || localStorage.getItem('empresa_id') || 67;
 const NOME_EMPRESA = dadosUsuario.nome_fantasia || dadosUsuario.nome || "Meu Salão";
+
 let ficheiroFotoSelecionado = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -41,12 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarConfiguracoes();
     inicializarMapaConfiguracoes();
 
-    // Inicializa o campo de data da agenda com hoje
     const inputDataAgenda = document.getElementById("input-agenda-data");
     if (inputDataAgenda) {
         inputDataAgenda.valueAsDate = new Date();
         carregarHorariosAgenda(inputDataAgenda.value);
-
         inputDataAgenda.addEventListener("change", (e) => {
             carregarHorariosAgenda(e.target.value);
         });
@@ -142,74 +174,7 @@ async function alterarStatusAgendamento(id, novoStatus) {
     }
 }
 
-// --- GESTÃO DE AGENDA E HORÁRIOS LIVRES ---
-async function carregarHorariosAgenda(dataSelecionada) {
-    const container = document.getElementById("lista-horarios-gerados");
-    if (!container) return;
-
-    container.innerHTML = "<p style='color: var(--text-secondary); font-size: 0.9rem;'>Carregando horários...</p>";
-
-    try {
-        const res = await fetch(`${API_URL}/api/agenda/livres?empresa_id=${EMPRESA_ID}&data=${dataSelecionada}`);
-        if (!res.ok) throw new Error();
-        const horarios = await res.json();
-
-        container.innerHTML = "";
-
-        if (!horarios || horarios.length === 0) {
-            container.innerHTML = "<p style='color: var(--text-secondary); font-size: 0.9rem;'>Nenhum horário livre gerado para esta data.</p>";
-            return;
-        }
-
-        // Agrupa os horários por nome da profissional
-        const grupos = {};
-        horarios.forEach(slot => {
-            const profNome = slot.profissional || "Equipe Geral";
-            if (!grupos[profNome]) {
-                grupos[profNome] = [];
-            }
-            grupos[profNome].push(slot);
-        });
-
-        // Cria uma caixa/card para cada profissional com os respetivos horários
-        for (const [profNome, slots] of Object.entries(grupos)) {
-            const grupoWrapper = document.createElement("div");
-            grupoWrapper.style.cssText = `
-                width: 100%; background: #fff; border: 1px solid var(--border-light);
-                border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            `;
-
-            let htmlSlots = '';
-            slots.forEach(slot => {
-                htmlSlots += `
-                    <div style="
-                        background: #f7fafc; padding: 8px 12px; border-radius: 8px;
-                        display: inline-flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text-primary);
-                        border: 1px solid var(--border-light); margin: 4px;
-                    ">
-                        <span>⏰ <strong>${slot.hora}</strong></span>
-                        <button onclick="removerSlotAgenda(${slot.id})" style="background: none; border: none; color: #e53e3e; cursor: pointer; font-weight: bold; font-size: 1rem;" title="Remover horário">×</button>
-                    </div>
-                `;
-            });
-
-            grupoWrapper.innerHTML = `
-                <h4 style="font-size: 0.95rem; font-weight: 600; color: #482868; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-                    👤 ${profNome} <span style="font-size: 0.75rem; font-weight: normal; color: var(--text-secondary);">(${slots.length} horários disponíveis)</span>
-                </h4>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                    ${htmlSlots}
-                </div>
-            `;
-
-            container.appendChild(grupoWrapper);
-        }
-
-    } catch (err) {
-        container.innerHTML = "<p style='color: #e53e3e; font-size: 0.9rem;'>Erro ao carregar horários.</p>";
-    }
-}
-
+// --- GESTÃO DE AGENDA E HORÁRIOS ---
 async function gerarHorariosNaAgenda() {
     const data = document.getElementById("input-agenda-data").value;
     const hora_inicio = document.getElementById("input-agenda-inicio").value;
@@ -246,17 +211,77 @@ async function gerarHorariosNaAgenda() {
     }
 }
 
-async function removerSlotAgenda(slotId) {
-    if (!confirm("Deseja realmente remover este horário da agenda?")) return;
+async function carregarHorariosAgenda(dataSelecionada) {
+    const container = document.getElementById("lista-horarios-gerados");
+    if (!container) return;
+
+    container.innerHTML = "<p style='color: var(--text-secondary); font-size: 0.9rem;'>Carregando horários...</p>";
 
     try {
-        const res = await fetch(`${API_URL}/api/agenda/slot/${slotId}`, { method: "DELETE" });
-        if (!res.ok) throw new Error("Erro ao remover horário.");
+        const res = await fetch(`${API_URL}/api/agenda/livres?empresa_id=${EMPRESA_ID}&data=${dataSelecionada}`);
+        if (!res.ok) throw new Error();
+        const horarios = await res.json();
 
-        const data = document.getElementById("input-agenda-data").value;
-        carregarHorariosAgenda(data);
+        container.innerHTML = "";
+
+        if (!horarios || horarios.length === 0) {
+            container.innerHTML = "<p style='color: var(--text-secondary); font-size: 0.9rem;'>Nenhum horário livre gerado para esta data.</p>";
+            return;
+        }
+
+        const grupos = {};
+        horarios.forEach(slot => {
+            const profNome = slot.profissional || "Equipe Geral";
+            if (!grupos[profNome]) grupos[profNome] = [];
+            grupos[profNome].push(slot);
+        });
+
+        for (const [profNome, slots] of Object.entries(grupos)) {
+            const grupoWrapper = document.createElement("div");
+            grupoWrapper.style.cssText = `
+                width: 100%; background: #fff; border: 1px solid var(--border-light);
+                border-radius: 12px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 10px;
+            `;
+
+            let htmlSlots = '';
+            slots.forEach(slot => {
+                htmlSlots += `
+                    <div style="
+                        background: #f7fafc; padding: 6px 10px; border-radius: 8px;
+                        display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-primary);
+                        border: 1px solid var(--border-light); margin: 3px;
+                    ">
+                        <span>⏰ <strong>${slot.hora}</strong></span>
+                        <button onclick="removerSlotAgenda(${slot.id})" style="background: none; border: none; color: #e53e3e; cursor: pointer; font-weight: bold; font-size: 1rem;" title="Remover horário">×</button>
+                    </div>
+                `;
+            });
+
+            grupoWrapper.innerHTML = `
+                <h4 style="font-size: 0.95rem; font-weight: 600; color: #482868; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+                    👤 ${profNome} <span style="font-size: 0.75rem; font-weight: normal; color: var(--text-secondary);">(${slots.length} horários disponíveis)</span>
+                </h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    ${htmlSlots}
+                </div>
+            `;
+
+            container.appendChild(grupoWrapper);
+        }
+
     } catch (err) {
-        alert(err.message);
+        container.innerHTML = "<p style='color: #e53e3e; font-size: 0.9rem;'>Erro ao carregar horários.</p>";
+    }
+}
+
+async function removerSlotAgenda(slotId) {
+    try {
+        const res = await fetch(`${API_URL}/api/agenda/slot/${slotId}`, { method: "DELETE" });
+        if (!res.ok) throw new Error();
+        const dataSelecionada = document.getElementById("input-agenda-data").value;
+        carregarHorariosAgenda(dataSelecionada);
+    } catch (err) {
+        alert("Erro ao remover horário.");
     }
 }
 
@@ -361,10 +386,9 @@ function renderizarTabelaServicos(lista) {
 }
 
 function atualizarSelectProfissionais(profissionais) {
-    // 1. Atualiza o select da aba de Serviços
     const selectServico = document.getElementById('serv-profissional');
     if (selectServico) {
-        selectServico.innerHTML = '<option value="">Qualquer profissional (Geral)</option>';
+        selectServico.innerHTML = '<option value="">Equipe Geral / Sem Profissional Específica</option>';
         if (profissionais) {
             profissionais.forEach(prof => {
                 const opt = document.createElement('option');
@@ -375,7 +399,6 @@ function atualizarSelectProfissionais(profissionais) {
         }
     }
 
-    // 2. Atualiza o select da aba de Agenda / Horários
     const selectAgenda = document.getElementById('input-agenda-profissional');
     if (selectAgenda) {
         selectAgenda.innerHTML = '<option value="">Equipe Geral / Sem Profissional Específica</option>';
@@ -419,6 +442,25 @@ async function salvarServico(event) {
     }
 }
 
+// --- FOTO E UPLOAD ---
+function prepararUploadFoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    ficheiroFotoSelecionado = file;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const imgPreview = document.getElementById('img-preview-salao');
+        const placeholder = document.getElementById('preview-placeholder');
+
+        imgPreview.src = e.target.result;
+        imgPreview.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
 // --- CONFIGURAÇÕES E MAPA INTERATIVO ---
 let mapaConfig = null;
 let marcadorConfig = null;
@@ -442,6 +484,7 @@ function inicializarOuAtualizarMapa(lat, lng) {
             const posicao = marcadorConfig.getLatLng();
             document.getElementById('conf-lat').value = posicao.lat;
             document.getElementById('conf-lng').value = posicao.lng;
+            obterEnderecoPorCoordenadas(posicao.lat, posicao.lng);
         });
     } else {
         mapaConfig.setView([lat, lng], 16);
@@ -454,11 +497,24 @@ function inicializarOuAtualizarMapa(lat, lng) {
     setTimeout(() => { mapaConfig.invalidateSize(); }, 200);
 }
 
+async function obterEnderecoPorCoordenadas(lat, lng) {
+    try {
+        const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await resp.json();
+        if (data && data.display_name) {
+            document.getElementById('conf-endereco').value = data.display_name;
+        }
+    } catch (e) {
+        console.warn("Não foi possível atualizar o texto da morada.");
+    }
+}
+
 function inicializarMapaConfiguracoes() {
     const inputEndereco = document.getElementById('conf-endereco');
     if (!inputEndereco) return;
 
     const containerSugestoes = document.createElement('div');
+    containerSugestoes.id = 'sugestoes-endereco';
     containerSugestoes.style.cssText = `
         position: absolute; background: white; border: 1px solid #cbd5e0;
         border-radius: 8px; max-height: 200px; overflow-y: auto; width: 100%;
@@ -498,6 +554,9 @@ function inicializarMapaConfiguracoes() {
                         inicializarOuAtualizarMapa(parseFloat(item.lat), parseFloat(item.lon));
                     });
 
+                    div.addEventListener('mouseenter', () => div.style.background = '#f7fafc');
+                    div.addEventListener('mouseleave', () => div.style.background = 'white');
+
                     containerSugestoes.appendChild(div);
                 });
 
@@ -506,6 +565,12 @@ function inicializarMapaConfiguracoes() {
                 console.error("Erro ao buscar endereços:", error);
             }
         }, 400);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!inputEndereco.contains(e.target) && !containerSugestoes.contains(e.target)) {
+            containerSugestoes.style.display = 'none';
+        }
     });
 }
 
@@ -522,6 +587,26 @@ async function carregarConfiguracoes() {
         document.getElementById('conf-endereco').value = config.endereco || '';
         document.getElementById('conf-descricao').value = config.descricao || '';
 
+        if (config.foto_url) {
+            const imgPreview = document.getElementById('img-preview-salao');
+            const placeholder = document.getElementById('preview-placeholder');
+            imgPreview.src = config.foto_url;
+            imgPreview.style.display = 'block';
+            if (placeholder) placeholder.style.display = 'none';
+        }
+
+        if (config.horario_funcionamento) {
+            const partes = config.horario_funcionamento.split(',');
+            if (partes.length >= 2) {
+                document.getElementById('conf-dias-semana').value = partes[0].trim();
+                const horas = partes[1].match(/\d{2}:\d{2}/g);
+                if (horas && horas.length >= 2) {
+                    document.getElementById('conf-hora-inicio').value = horas[0];
+                    document.getElementById('conf-hora-fim').value = horas[1];
+                }
+            }
+        }
+
         if (config.latitude && config.longitude) {
             document.getElementById('conf-lat').value = config.latitude;
             document.getElementById('conf-lng').value = config.longitude;
@@ -535,7 +620,7 @@ async function carregarConfiguracoes() {
             });
         }
     } catch (e) {
-        console.warn("Configurações não carregadas.");
+        console.warn("Configurações ainda não carregadas do servidor.");
     }
 }
 
@@ -546,6 +631,31 @@ async function salvarConfiguracoes(event) {
         .map(chk => chk.value)
         .join(' • ');
 
+    const dias = document.getElementById('conf-dias-semana').value;
+    const hInicio = document.getElementById('conf-hora-inicio').value;
+    const hFim = document.getElementById('conf-hora-fim').value;
+    const horarioFormatado = `${dias}, das ${hInicio} às ${hFim}`;
+
+    let fotoUrlFinal = null;
+
+    if (ficheiroFotoSelecionado) {
+        const formData = new FormData();
+        formData.append("file", ficheiroFotoSelecionado);
+
+        try {
+            const resUpload = await fetch(`${API_URL}/api/configuracoes/upload-foto/${EMPRESA_ID}`, {
+                method: "POST",
+                body: formData
+            });
+            if (resUpload.ok) {
+                const dadosUpload = await resUpload.json();
+                fotoUrlFinal = dadosUpload.foto_url;
+            }
+        } catch (err) {
+            console.warn("Erro ao enviar foto, mantendo anterior.");
+        }
+    }
+
     const payload = {
         nome_fantasia: document.getElementById('conf-nome-fantasia').value.trim(),
         razao_social: document.getElementById('conf-razao-social').value.trim(),
@@ -553,9 +663,14 @@ async function salvarConfiguracoes(event) {
         categorias: categoriasSelecionadas,
         endereco: document.getElementById('conf-endereco').value.trim(),
         descricao: document.getElementById('conf-descricao').value.trim(),
+        horario_funcionamento: horarioFormatado,
         latitude: document.getElementById('conf-lat').value ? parseFloat(document.getElementById('conf-lat').value) : null,
         longitude: document.getElementById('conf-lng').value ? parseFloat(document.getElementById('conf-lng').value) : null
     };
+
+    if (fotoUrlFinal) {
+        payload.foto_url = fotoUrlFinal;
+    }
 
     try {
         const response = await fetch(`${API_URL}/api/configuracoes/${EMPRESA_ID}`, {
@@ -573,6 +688,7 @@ async function salvarConfiguracoes(event) {
             alert(`Erro ao salvar: ${erro.detail || 'Tente novamente.'}`);
         }
     } catch (error) {
+        console.error('Erro:', error);
         alert('Erro de conexão com o servidor.');
     }
 }

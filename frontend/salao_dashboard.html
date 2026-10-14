@@ -90,27 +90,23 @@
                             <th>Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Vazio - Aguardando dados reais -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Sessão de Gestão de Agenda e Horários Livres -->
+        <!-- Sessão de Gestão de Agenda e Horários -->
         <section id="agenda" class="sessao-painel content-card" style="display: none;">
             <div class="card-header">
                 <div>
                     <h3 class="card-title">📅 Gestão de Agenda e Horários</h3>
-                    <p class="card-subtitle">Selecione uma data e gere os horários livres que estarão disponíveis para
-                        as clientes agendarem</p>
+                    <p class="card-subtitle">Gere os blocos de horários livres por profissional ou equipe geral</p>
                 </div>
             </div>
 
-            <!-- Formulário para Gerir / Gerar Horários -->
             <div style="padding: 1.5rem 1.8rem; border-bottom: 1px solid var(--border-light); background: #FAFBFD;">
                 <div
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: flex-end;">
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
                     <div>
                         <label
                             style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Data
@@ -134,8 +130,7 @@
                     </div>
                     <div>
                         <label
-                            style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Intervalo
-                            dos Blocos</label>
+                            style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Intervalo</label>
                         <select id="input-agenda-intervalo"
                             style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px; background: #fff;">
                             <option value="30">30 minutos</option>
@@ -152,22 +147,17 @@
                             <option value="">Equipe Geral / Sem Profissional Específica</option>
                         </select>
                     </div>
-                    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 0.5rem;">
+                    <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
                         <button type="button" onclick="gerarHorariosNaAgenda()" class="btn-login-profile"
-                            style="height: 40px; padding: 0 1.5rem;">
-                            ✨ Gerar Horários para este Dia
-                        </button>
+                            style="height: 40px; padding: 0 1.5rem;">✨ Gerar Horários</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Lista de Horários Gerados para o Dia Selecionado -->
             <div style="padding: 1.8rem;">
                 <h4 style="font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1rem;">
                     Horários Disponíveis Cadastrados</h4>
-                <div id="lista-horarios-gerados" style="display: flex; flex-wrap: wrap; gap: 10px;">
-                    <!-- Preenchido via JavaScript -->
-                </div>
+                <div id="lista-horarios-gerados" style="display: flex; flex-direction: column; gap: 12px;"></div>
             </div>
         </section>
 
@@ -180,7 +170,6 @@
                 </div>
             </div>
 
-            <!-- Formulário de Cadastro de Serviço -->
             <div style="padding: 1.5rem 1.8rem; border-bottom: 1px solid var(--border-light);">
                 <form id="form-servico" onsubmit="salvarServico(event)"
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
@@ -229,7 +218,6 @@
                 </form>
             </div>
 
-            <!-- Tabela de Serviços -->
             <div class="table-responsive">
                 <table class="data-table" id="tabela-servicos">
                     <thead>
@@ -241,9 +229,7 @@
                             <th>Especialista</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Vazio - Aguardando dados reais -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </section>
@@ -257,7 +243,6 @@
                 </div>
             </div>
 
-            <!-- Formulário de Cadastro -->
             <div style="padding: 1.5rem 1.8rem; border-bottom: 1px solid var(--border-light);">
                 <form id="form-profissional" onsubmit="salvarProfissional(event)"
                     style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
@@ -285,7 +270,6 @@
                 </form>
             </div>
 
-            <!-- Tabela de Profissionais -->
             <div class="table-responsive">
                 <table class="data-table" id="tabela-profissionais">
                     <thead>
@@ -295,9 +279,7 @@
                             <th>Contato</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Vazio - Aguardando dados reais -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </section>
@@ -307,7 +289,8 @@
             <div class="card-header">
                 <div>
                     <h3 class="card-title">Configurações do Estabelecimento</h3>
-                    <p class="card-subtitle">Gerencie as informações públicas, categorias e localização do seu salão</p>
+                    <p class="card-subtitle">Gerencie as informações públicas, categorias, horários e foto do seu salão
+                    </p>
                 </div>
             </div>
 
@@ -384,9 +367,52 @@
                         <label
                             style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Descrição
                             Curta sobre o Espaço</label>
-                        <textarea id="conf-descricao" rows="3"
-                            placeholder="Conte um pouco sobre os diferenciais do seu salão..."
+                        <textarea id="conf-descricao" rows="3" placeholder="Conte um pouco sobre os diferenciais..."
                             style="width: 100%; padding: 0.7rem; border: 1px solid var(--border-light); border-radius: 8px; font-family: 'Poppins', sans-serif;"></textarea>
+                    </div>
+
+                    <div
+                        style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; background: #FAFBFD; padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-light);">
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary);">Foto do
+                                Estabelecimento</label>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div id="preview-foto-wrapper"
+                                    style="width: 70px; height: 70px; border-radius: 50%; background: #e2e8f0; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid var(--border-light);">
+                                    <img id="img-preview-salao" src="" alt="Foto"
+                                        style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                                    <span id="preview-placeholder" style="font-size: 24px;">🖼️</span>
+                                </div>
+                                <div style="flex: 1;">
+                                    <input type="file" id="input-foto-salao" accept="image/*" style="display: none;"
+                                        onchange="prepararUploadFoto(event)">
+                                    <button type="button" onclick="document.getElementById('input-foto-salao').click()"
+                                        style="padding: 0.5rem 1rem; background: #fff; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer;">Escolher
+                                        Imagem</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary);">Horário de
+                                Atendimento</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <select id="conf-dias-semana"
+                                    style="padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px; background: #fff; font-size: 0.85rem;">
+                                    <option value="Segunda a Sábado">Segunda a Sábado</option>
+                                    <option value="Segunda a Sexta">Segunda a Sexta</option>
+                                    <option value="Terça a Domingo">Terça a Domingo</option>
+                                    <option value="Todos os dias">Todos os dias</option>
+                                </select>
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <input type="time" id="conf-hora-inicio" value="09:00"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem;">
+                                    <span style="color: var(--text-secondary);">às</span>
+                                    <input type="time" id="conf-hora-fim" value="19:00"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem;">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end; margin-top: 1rem;">
