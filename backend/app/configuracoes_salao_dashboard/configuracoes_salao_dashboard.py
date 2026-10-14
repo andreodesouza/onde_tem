@@ -4,7 +4,6 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from pydantic import BaseModel
 from supabase import create_client, Client
-
 from ..database import get_db
 from ..models import ConfiguracaoEmpresaModel, UsuarioModel
 
