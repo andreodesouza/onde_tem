@@ -15,9 +15,6 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
 
-# Permite aceder aos ficheiros da pasta static através de /static/...
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
 app.include_router(configuracoes_router)  
 
 app.include_router(login_router)
