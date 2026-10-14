@@ -1,4 +1,8 @@
 // Força a recarga da página caso o utilizador use o botão "Voltar" do navegador[cite: 20]
+const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+  ? "http://127.0.0.1:8000"
+  : "/api";
+
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     window.location.reload();
