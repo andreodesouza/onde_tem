@@ -76,6 +76,25 @@
       <aside class="agendamento-sidebar">
         <div class="agendamento-card-fixo">
           <h3>Seu Agendamento</h3>
+
+          <!-- Seleção de Data -->
+          <div style="margin-bottom: 12px;">
+            <label style="display: block; font-size: 0.8rem; color: #718096; margin-bottom: 4px;">Selecione a
+              Data:</label>
+            <input type="date" id="input-data-agendamento"
+              style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 8px; font-family: 'Poppins', sans-serif;">
+          </div>
+
+          <!-- Seleção de Horários Disponíveis -->
+          <div style="margin-bottom: 15px;">
+            <label style="display: block; font-size: 0.8rem; color: #718096; margin-bottom: 4px;">Horários
+              Disponíveis:</label>
+            <div id="lista-horarios-disponiveis"
+              style="display: flex; flex-wrap: wrap; gap: 6px; max-height: 120px; overflow-y: auto;">
+              <p class="empty-msg" style="font-size: 0.85rem;">Selecione uma data para ver os horários.</p>
+            </div>
+          </div>
+
           <div id="itens-selecionados" class="itens-selecionados">
             <p class="empty-msg">Nenhum serviço selecionado ainda.</p>
           </div>
@@ -88,7 +107,7 @@
           </div>
 
           <button id="btn-continuar-agendamento" class="btn-primary" disabled>
-            Escolher Data e Hora
+            Confirmar Agendamento
           </button>
         </div>
       </aside>

@@ -1,48 +1,34 @@
-// Força a recarga da página caso o utilizador use o botão "Voltar" do navegador[cite: 20]
+// Configuração da URL da API (suporta localhost e produção)
 const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
   ? "http://127.0.0.1:8000"
   : "/api";
 
+// Força a recarga da página caso o utilizador use o botão "Voltar" do navegador
 window.addEventListener("pageshow", (event) => {
   if (event.persisted) {
     window.location.reload();
   }
 });
 
-// Verifica se o usuário está logado antes de rodar qualquer outra coisa na página[cite: 20]
+// Verifica se o usuário está logado antes de rodar qualquer outra coisa na página
 const usuarioLogadoStr = localStorage.getItem('usuarioLogado') ||
   localStorage.getItem('usuario_logado') ||
   sessionStorage.getItem('usuarioLogado');
 
 if (!usuarioLogadoStr) {
-  // Cria a estrutura do Modal Moderno[cite: 20]
   const modalOverlay = document.createElement('div');
   modalOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 99999;
-        font-family: 'Poppins', sans-serif;
-        animation: fadeIn 0.3s ease;
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px);
+        display: flex; justify-content: center; align-items: center; z-index: 99999;
+        font-family: 'Poppins', sans-serif; animation: fadeIn 0.3s ease;
     `;
 
   const modalBox = document.createElement('div');
   modalBox.style.cssText = `
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        width: 90%;
-        max-width: 380px;
-        text-align: center;
-        transform: scale(0.9);
+        background: #ffffff; padding: 30px; border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); width: 90%; max-width: 380px;
+        text-align: center; transform: scale(0.9);
         animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     `;
 
@@ -53,16 +39,9 @@ if (!usuarioLogadoStr) {
             Você precisa estar conectado à sua conta para aceder a esta página.
         </p>
         <button id="btn-ir-login" style="
-            background: #6c5ce7;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            background: #6c5ce7; color: white; border: none; width: 100%;
+            padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
         ">Fazer Login</button>
     `;
 
@@ -76,10 +55,7 @@ if (!usuarioLogadoStr) {
   modalOverlay.appendChild(modalBox);
   document.body.appendChild(modalOverlay);
 
-  const redirecionar = () => {
-    window.location.href = 'login.html';
-  };
-
+  const redirecionar = () => { window.location.href = 'login.html'; };
   document.getElementById('btn-ir-login').addEventListener('click', redirecionar);
   setTimeout(redirecionar, 3000);
 
@@ -87,33 +63,49 @@ if (!usuarioLogadoStr) {
 }
 
 // ==========================================
-// CÓDIGO PRINCIPAL (só roda se estiver logado)
+// CÓDIGO PRINCIPAL
 // ==========================================
 
 let carrinhoServicos = [];
+let horarioSelecionadoSlot = null;
+let salaoIdGlobal = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarEstadoLoginHeader();
 
   const urlParams = new URLSearchParams(window.location.search);
-  const salaoId = urlParams.get("id");
+  salaoIdGlobal = urlParams.get("id");
 
-  if (!salaoId) {
+  if (!salaoIdGlobal) {
     alert("Nenhum salão selecionado!");
     window.location.href = "app.html";
     return;
   }
 
-  carregarDadosSalao(salaoId);
+  carregarDadosSalao(salaoIdGlobal);
+
+  const inputData = document.getElementById("input-data-agendamento");
+  if (inputData) {
+    inputData.valueAsDate = new Date();
+    carregarHorariosLivres(salaoIdGlobal, inputData.value, null);
+
+    inputData.addEventListener("change", (e) => {
+      const profFiltro = carrinhoServicos.length > 0 ? carrinhoServicos[0].profissional_id : null;
+      carregarHorariosLivres(salaoIdGlobal, e.target.value, profFiltro);
+    });
+  }
+
+  const btnConfirmar = document.getElementById("btn-continuar-agendamento");
+  if (btnConfirmar) {
+    btnConfirmar.addEventListener("click", finalizarAgendamento);
+  }
 });
 
-// Renderiza o menu em cascata no cabeçalho da página do salão
 function verificarEstadoLoginHeader() {
   const headerActions = document.querySelector('.header-actions');
   if (!headerActions) return;
 
   const btnLoginHeader = headerActions.querySelector('.btn-login-header');
-
   let usuario;
   try {
     usuario = JSON.parse(usuarioLogadoStr);
@@ -146,27 +138,18 @@ function verificarEstadoLoginHeader() {
     headerActions.appendChild(userMenuContainer);
   }
 
-  const toggleBtn = document.getElementById('btn-dropdown-toggle');
-  const dropdownMenu = document.getElementById('dropdown-menu');
-
-  toggleBtn.addEventListener('click', (e) => {
+  document.getElementById('btn-dropdown-toggle').addEventListener('click', (e) => {
     e.stopPropagation();
-    dropdownMenu.classList.toggle('show');
-  });
-
-  dropdownMenu.addEventListener('click', (e) => {
-    e.stopPropagation();
+    document.getElementById('dropdown-menu').classList.toggle('show');
   });
 
   window.addEventListener('click', () => {
-    dropdownMenu.classList.remove('show');
+    const menu = document.getElementById('dropdown-menu');
+    if (menu) menu.classList.remove('show');
   });
 
   document.getElementById('btn-sair-sessao').addEventListener('click', () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario_logado');
-    localStorage.removeItem('usuarioLogado');
-    sessionStorage.removeItem('usuarioLogado');
+    localStorage.clear();
     window.location.href = 'login.html';
   });
 }
@@ -208,7 +191,7 @@ function renderizarServicos(servicos) {
   const container = document.getElementById("lista-servicos");
   container.innerHTML = "";
 
-  if (servicos.length === 0) {
+  if (!servicos || servicos.length === 0) {
     container.innerHTML = "<p>Nenhum serviço disponível no momento.</p>";
     return;
   }
@@ -217,15 +200,22 @@ function renderizarServicos(servicos) {
     const card = document.createElement("div");
     card.className = "item-servico";
 
+    // Mapeia todas as possíveis variações de nome do ID do profissional vindas da API
+    const profId = servico.profissional_id !== undefined ? servico.profissional_id :
+      (servico.id_profissional !== undefined ? servico.id_profissional : null);
+
     card.innerHTML = `
       <div class="servico-detalhes">
         <h3>${servico.nome}</h3>
-        <p>${servico.descricao}</p>
+        <p>${servico.descricao || ''}</p>
+        <p style="font-size: 0.8rem; color: #482868; margin-top: 4px; font-weight: 500;">
+          👤 Profissional: ${servico.profissional_nome || 'Equipe Geral'} (ID: ${profId})
+        </p>
         <span class="servico-meta">⏱️ Duração média: ${servico.duracao_min} min</span>
       </div>
       <div class="servico-acao">
         <span class="servico-preco">R$ ${servico.preco.toFixed(2).replace('.', ',')}</span>
-        <button class="btn-selecionar" id="btn-srv-${servico.id}" onclick="alternarServico('${servico.id}', '${servico.nome}', ${servico.preco})">
+        <button class="btn-selecionar" id="btn-srv-${servico.id}" onclick="alternarServico('${servico.id}', '${servico.nome}', ${servico.preco}, ${profId !== null && !isNaN(profId) ? profId : 'null'})">
           Adicionar
         </button>
       </div>
@@ -235,32 +225,100 @@ function renderizarServicos(servicos) {
   });
 }
 
-function alternarServico(id, nome, preco) {
+function alternarServico(id, nome, preco, profissionalId) {
+  console.log("-> Serviço:", nome, "| ID do Profissional associado:", profissionalId);
+
   const index = carrinhoServicos.findIndex(s => s.id === id);
   const btn = document.getElementById(`btn-srv-${id}`);
 
   if (index > -1) {
     carrinhoServicos.splice(index, 1);
-    btn.classList.remove("selecionado");
-    btn.innerText = "Adicionar";
+    if (btn) {
+      btn.classList.remove("selecionado");
+      btn.innerText = "Adicionar";
+    }
   } else {
-    carrinhoServicos.push({ id, nome, preco });
-    btn.classList.add("selecionado");
-    btn.innerText = "Remover";
+    carrinhoServicos.push({ id, nome, preco, profissional_id: profissionalId });
+    if (btn) {
+      btn.classList.add("selecionado");
+      btn.innerText = "Remover";
+    }
   }
 
   atualizarResumo();
+
+  const inputData = document.getElementById("input-data-agendamento");
+  if (inputData && inputData.value) {
+    // Se houver serviços no carrinho, pega o profissional_id do primeiro serviço selecionado
+    const profFiltro = carrinhoServicos.length > 0 ? carrinhoServicos[0].profissional_id : null;
+    console.log("-> A filtrar horários na API para o profissional_id:", profFiltro);
+    carregarHorariosLivres(salaoIdGlobal, inputData.value, profFiltro);
+  }
+}
+
+async function carregarHorariosLivres(empresaId, data, profissionalId = null) {
+  const container = document.getElementById("lista-horarios-disponiveis");
+  container.innerHTML = "<p style='font-size: 0.8rem; color: #718096;'>A carregar horários...</p>";
+  horarioSelecionadoSlot = null;
+  validarBotaoContinuar();
+
+  try {
+    let url = `${API_URL}/api/agenda/livres?empresa_id=${empresaId}&data=${data}`;
+    if (profissionalId && profissionalId !== 'null' && profissionalId !== null && profissionalId !== 'undefined' && !isNaN(profissionalId)) {
+      url += `&profissional_id=${profissionalId}`;
+    }
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error();
+    const horarios = await res.json();
+
+    container.innerHTML = "";
+
+    if (!horarios || horarios.length === 0) {
+      container.innerHTML = "<p style='font-size: 0.8rem; color: #e53e3e;'>Sem horários livres para este profissional nesta data.</p>";
+      return;
+    }
+
+    horarios.forEach(slot => {
+      const btnSlot = document.createElement("button");
+      btnSlot.type = "button";
+      btnSlot.className = "btn-slot-horario";
+      btnSlot.style.cssText = `
+        padding: 6px 10px; background: #fff; border: 1px solid #cbd5e0;
+        border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 500;
+        transition: all 0.2s;
+      `;
+      btnSlot.textContent = `${slot.hora} (${slot.profissional})`;
+
+      btnSlot.addEventListener("click", () => {
+        document.querySelectorAll('.btn-slot-horario').forEach(b => {
+          b.style.background = "#fff";
+          b.style.color = "#2d3748";
+          b.style.borderColor = "#cbd5e0";
+        });
+        btnSlot.style.background = "#6c5ce7";
+        btnSlot.style.color = "#fff";
+        btnSlot.style.borderColor = "#6c5ce7";
+
+        horarioSelecionadoSlot = `${data} ${slot.hora}`;
+        validarBotaoContinuar();
+      });
+
+      container.appendChild(btnSlot);
+    });
+  } catch (err) {
+    container.innerHTML = "<p style='font-size: 0.8rem; color: #e53e3e;'>Erro ao carregar horários.</p>";
+  }
 }
 
 function atualizarResumo() {
   const containerResumo = document.getElementById("itens-selecionados");
   const elementoTotal = document.getElementById("valor-total");
-  const btnContinuar = document.getElementById("btn-continuar-agendamento");
 
   if (carrinhoServicos.length === 0) {
     containerResumo.innerHTML = '<p class="empty-msg">Nenhum serviço selecionado ainda.</p>';
     elementoTotal.innerText = "R$ 0,00";
-    btnContinuar.disabled = true;
+    validarBotaoContinuar();
     return;
   }
 
@@ -279,10 +337,50 @@ function atualizarResumo() {
   });
 
   elementoTotal.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-  btnContinuar.disabled = false;
+  validarBotaoContinuar();
 }
 
-document.getElementById("btn-continuar-agendamento").addEventListener("click", () => {
-  sessionStorage.setItem("agendamento_itens", JSON.stringify(carrinhoServicos));
-  alert("Próxima etapa: Integração com calendário/horários disponíveis!");
-});
+function validarBotaoContinuar() {
+  const btnContinuar = document.getElementById("btn-continuar-agendamento");
+  if (!btnContinuar) return;
+
+  if (carrinhoServicos.length > 0 && horarioSelecionadoSlot) {
+    btnContinuar.disabled = false;
+  } else {
+    btnContinuar.disabled = true;
+  }
+}
+
+async function finalizarAgendamento() {
+  let usuario;
+  try {
+    usuario = JSON.parse(usuarioLogadoStr);
+  } catch (e) {
+    usuario = { nome: "Cliente", id: null };
+  }
+
+  for (const servico of carrinhoServicos) {
+    const payload = {
+      empresa_id: parseInt(salaoIdGlobal),
+      servico_id: parseInt(servico.id),
+      cliente_nome: usuario.nome || usuario.email || "Cliente Onde Tem",
+      data_hora: horarioSelecionadoSlot
+    };
+
+    try {
+      const res = await fetch(`${API_URL}/api/agendamentos`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error("Erro ao registrar agendamento.");
+    } catch (err) {
+      alert("Erro ao efetuar o agendamento. Tente novamente.");
+      return;
+    }
+  }
+
+  alert("🎉 Agendamento solicitado com sucesso! Acompanhe o status no seu painel.");
+  window.location.href = "app.html";
+}

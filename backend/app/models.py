@@ -52,3 +52,24 @@ class ServicoModel(Base):
     duracao_minutos = Column(Integer, nullable=False)
     profissional_id = Column(Integer, ForeignKey("profissionais.id"), nullable=True)
     descricao = Column(Text, nullable=True)
+
+class AgendaHorarioModel(Base):
+    __tablename__ = "agenda_horarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    empresa_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    data = Column(String, nullable=False)          # Formato: "2026-11-15"
+    hora = Column(String, nullable=False)          # Formato: "14:00"
+    disponivel = Column(Integer, default=1)        # 1 = Livre, 0 = Ocupado/Reservado
+    profissional_id = Column(Integer, ForeignKey("profissionais.id"), nullable=True) # Opcional
+
+class AgendamentoModel(Base):
+    __tablename__ = "agendamentos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    empresa_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    cliente_nome = Column(String, nullable=False)
+    servico_id = Column(Integer, ForeignKey("servicos.id"), nullable=False)
+    profissional_id = Column(Integer, ForeignKey("profissionais.id"), nullable=True)
+    data_hora = Column(String, nullable=False) # Ex: "2026-10-14 11:00"
+    status = Column(String, default="pendente") # pendente, confirmad
