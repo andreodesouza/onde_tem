@@ -756,6 +756,7 @@ input {
 }
 
 /* Otimização mobile extrema para evitar estouro da caixa branca */
+/* Correção definitiva para o painel de perfil em telemóveis reais */
 @media (max-width: 860px) {
   .dashboard {
     flex-direction: column;
@@ -783,14 +784,15 @@ input {
 
   .conteudo {
     overflow: visible !important;
-    padding: 20px 12px 100px 12px !important;
+    padding: 20px 12px 120px 12px !important;
   }
 
+  /* Faz com que a caixa branca no telemóvel acompanhe todo o conteúdo com folga de sobra em baixo */
   #view-perfil .perfil-painel {
-    max-height: 75vh !important;
-    overflow-y: auto !important;
-    padding-bottom: 60px !important;
-    scrollbar-width: thin;
+    max-height: none !important;
+    overflow-y: visible !important;
+    height: auto !important;
+    padding-bottom: 40px !important;
   }
 }
 
