@@ -181,168 +181,110 @@
           </div>
 
           <!-- Visualização de Dados do Perfil -->
-          <dl class="perfil-dados" id="perfil-dados-visualizacao" style="display: grid; gap: 12px; margin: 0;">
-            <div
-              style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0edf5; padding-bottom: 8px;">
+          <dl class="perfil-dados" id="perfil-dados-visualizacao">
+            <div class="perfil-linha-dado">
               <div>
-                <dt
-                  style="font-size: 11px; font-weight: 500; color: #8c79a0; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Nome</dt>
-                <dd id="perfil-nome" style="font-size: 15px; font-weight: 600; color: #472969; margin: 2px 0 0;">—</dd>
+                <dt>Nome</dt>
+                <dd id="perfil-nome">—</dd>
               </div>
             </div>
-            <div
-              style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0edf5; padding-bottom: 8px;">
+            <div class="perfil-linha-dado">
               <div>
-                <dt
-                  style="font-size: 11px; font-weight: 500; color: #8c79a0; text-transform: uppercase; letter-spacing: 0.5px;">
-                  E-mail</dt>
-                <dd id="perfil-email" style="font-size: 15px; font-weight: 600; color: #472969; margin: 2px 0 0;">—</dd>
+                <dt>E-mail</dt>
+                <dd id="perfil-email">—</dd>
               </div>
             </div>
-            <div
-              style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0edf5; padding-bottom: 8px;">
+            <div class="perfil-linha-dado">
               <div>
-                <dt
-                  style="font-size: 11px; font-weight: 500; color: #8c79a0; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Telefone</dt>
-                <dd id="perfil-telefone" style="font-size: 15px; font-weight: 600; color: #472969; margin: 2px 0 0;">—
+                <dt>Telefone</dt>
+                <dd id="perfil-telefone">—</dd>
+              </div>
+            </div>
+            <div class="perfil-linha-dado">
+              <div>
+                <dt>Endereço</dt>
+                <dd id="perfil-endereco">—</dd>
+              </div>
+            </div>
+            <div class="perfil-linha-dado perfil-linha-botoes">
+              <div>
+                <dt>Segurança</dt>
+                <dd class="perfil-senha-linha">
+                  <span id="perfil-senha" aria-label="Senha oculta">••••••••</span>
                 </dd>
               </div>
-            </div>
-            <div
-              style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f0edf5; padding-bottom: 8px;">
-              <div>
-                <dt
-                  style="font-size: 11px; font-weight: 500; color: #8c79a0; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Endereço</dt>
-                <dd id="perfil-endereco" style="font-size: 15px; font-weight: 600; color: #472969; margin: 2px 0 0;">—
-                </dd>
-              </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
-              <div>
-                <dt
-                  style="font-size: 11px; font-weight: 500; color: #8c79a0; text-transform: uppercase; letter-spacing: 0.5px;">
-                  Segurança</dt>
-                <dd class="perfil-senha-linha"
-                  style="font-size: 15px; font-weight: 600; color: #472969; margin: 2px 0 0;">
-                  <span id="perfil-senha" aria-label="Senha oculta" style="letter-spacing: 2px;">••••••••</span>
-                </dd>
-              </div>
-              <div style="display: flex; gap: 8px;">
-                <button type="button" class="btn-trocar-senha" id="btn-editar-perfil"
-                  style="background: #472969; color: #fff; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Editar
-                  Perfil</button>
-                <button type="button" class="btn-trocar-senha" id="btn-trocar-senha"
-                  style="background: #fddafe; color: #ff24bd; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;">Trocar
-                  senha</button>
+              <div class="perfil-botoes-acao">
+                <button type="button" class="btn-acao-primaria" id="btn-editar-perfil">Editar Perfil</button>
+                <button type="button" class="btn-acao-secundaria" id="btn-trocar-senha">Trocar senha</button>
               </div>
             </div>
           </dl>
 
-          <!-- Formulário de Edição de Perfil Ultra-Compacto e Seguro -->
-          <form class="form-senha" id="form-editar-perfil" hidden
-            style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-bottom: 15px;">
-            <h3 style="color: #2d3748; font-size: 16px; font-weight: 600; margin-bottom: 0;">Editar Perfil</h3>
-
-            <label
-              style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-              Nome Completo
-              <input type="text" id="input-edit-nome" required
-                style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-            </label>
-
-            <label
-              style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-              Telefone de Contato
-              <input type="text" id="input-edit-telefone" placeholder="(XX) XXXXX-XXXX"
-                style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-            </label>
-
-            <div style="display: grid; grid-template-columns: 95px 1fr; gap: 6px;">
-              <label
-                style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-                CEP
-                <input type="text" id="input-edit-cep" placeholder="00000-000" maxlength="9"
-                  style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-              </label>
-              <label
-                style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-                Rua / Logradouro
-                <input type="text" id="input-edit-rua" placeholder="Nome da rua"
-                  style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-              </label>
+          <!-- Formulário de Edição de Perfil Reestruturado -->
+          <form class="form-perfil-edit" id="form-editar-perfil" hidden>
+            <h3>Editar Perfil</h3>
+            <div class="form-grupo">
+              <label>Nome Completo</label>
+              <input type="text" id="input-edit-nome" required />
             </div>
-
-            <div style="display: grid; grid-template-columns: 75px 1fr; gap: 6px;">
-              <label
-                style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-                Número
-                <input type="text" id="input-edit-numero" placeholder="Nº"
-                  style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-              </label>
-              <label
-                style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-                Bairro
-                <input type="text" id="input-edit-bairro" placeholder="Bairro"
-                  style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-              </label>
+            <div class="form-grupo">
+              <label>Telefone de Contato</label>
+              <input type="text" id="input-edit-telefone" placeholder="(XX) XXXXX-XXXX" />
             </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 65px; gap: 6px;">
-              <label
-                style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-                Cidade
-                <input type="text" id="input-edit-cidade" placeholder="Cidade"
-                  style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-              </label>
-              <label
-                style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-                Estado
-                <input type="text" id="input-edit-estado" placeholder="UF" maxlength="2"
-                  style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff; text-transform: uppercase;" />
-              </label>
+            <div class="form-linha-dupla">
+              <div class="form-grupo form-cep-curto">
+                <label>CEP</label>
+                <input type="text" id="input-edit-cep" placeholder="00000-000" maxlength="9" />
+              </div>
+              <div class="form-grupo form-flex-grow">
+                <label>Rua / Logradouro</label>
+                <input type="text" id="input-edit-rua" placeholder="Nome da rua" />
+              </div>
             </div>
-
-            <div class="form-senha-acoes" style="display: flex; gap: 8px; margin-top: 8px;">
-              <button type="button" class="btn-cancelar" id="btn-cancelar-edit"
-                style="flex: 1; padding: 9px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; color: #4a5568; font-weight: 600; cursor: pointer;">Cancelar</button>
-              <button type="submit" class="btn-salvar"
-                style="flex: 1; padding: 9px; border-radius: 6px; border: none; background: #472969; color: #fff; font-weight: 600; cursor: pointer;">Salvar
-                Alterações</button>
+            <div class="form-linha-dupla">
+              <div class="form-grupo form-cep-curto">
+                <label>Número</label>
+                <input type="text" id="input-edit-numero" placeholder="Nº" />
+              </div>
+              <div class="form-grupo form-flex-grow">
+                <label>Bairro</label>
+                <input type="text" id="input-edit-bairro" placeholder="Bairro" />
+              </div>
+            </div>
+            <div class="form-linha-dupla">
+              <div class="form-grupo form-flex-grow">
+                <label>Cidade</label>
+                <input type="text" id="input-edit-cidade" placeholder="Cidade" />
+              </div>
+              <div class="form-grupo form-estado-curto">
+                <label>Estado</label>
+                <input type="text" id="input-edit-estado" placeholder="UF" maxlength="2" />
+              </div>
+            </div>
+            <div class="form-botoes-container">
+              <button type="button" class="btn-cancelar-acao" id="btn-cancelar-edit">Cancelar</button>
+              <button type="submit" class="btn-salvar-acao">Salvar Alterações</button>
             </div>
           </form>
 
-          <!-- Formulário de Troca de Senha Compacto -->
-          <form class="form-senha" id="form-senha" hidden
-            style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding-bottom: 15px;">
-            <h3 style="color: #2d3748; font-size: 16px; font-weight: 600; margin-bottom: 0;">Trocar senha</h3>
-            <label
-              style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-              Senha atual
-              <input type="password" id="senha-atual" autocomplete="current-password" required
-                style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-            </label>
-            <label
-              style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-              Nova senha
-              <input type="password" id="senha-nova" autocomplete="new-password" minlength="6" required
-                style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-            </label>
-            <label
-              style="display: flex; flex-direction: column; gap: 2px; font-size: 11px; font-weight: 500; color: #4a5568;">
-              Confirmar nova senha
-              <input type="password" id="senha-confirma" autocomplete="new-password" minlength="6" required
-                style="padding: 7px 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 13px; outline: none; background: #fff;" />
-            </label>
-            <div class="form-senha-acoes" style="display: flex; gap: 8px; margin-top: 8px;">
-              <button type="button" class="btn-cancelar" id="btn-cancelar-senha-form"
-                style="flex: 1; padding: 9px; border-radius: 6px; border: 1px solid #cbd5e0; background: #fff; color: #4a5568; font-weight: 600; cursor: pointer;"
-                onclick="document.getElementById('form-senha').hidden=true; document.getElementById('perfil-dados-visualizacao').hidden=false;">Cancelar</button>
-              <button type="submit" class="btn-salvar"
-                style="flex: 1; padding: 9px; border-radius: 6px; border: none; background: #472969; color: #fff; font-weight: 600; cursor: pointer;">Salvar
-                senha</button>
+          <!-- Formulário de Troca de Senha Reestruturado -->
+          <form class="form-perfil-edit" id="form-senha" hidden>
+            <h3>Trocar senha</h3>
+            <div class="form-grupo">
+              <label>Senha atual</label>
+              <input type="password" id="senha-atual" autocomplete="current-password" required />
+            </div>
+            <div class="form-grupo">
+              <label>Nova senha</label>
+              <input type="password" id="senha-nova" autocomplete="new-password" minlength="6" required />
+            </div>
+            <div class="form-grupo">
+              <label>Confirmar nova senha</label>
+              <input type="password" id="senha-confirma" autocomplete="new-password" minlength="6" required />
+            </div>
+            <div class="form-botoes-container">
+              <button type="button" class="btn-cancelar-acao" id="btn-cancelar-senha">Cancelar</button>
+              <button type="submit" class="btn-salvar-acao">Salvar senha</button>
             </div>
           </form>
           <p class="form-senha-msg" id="form-senha-msg" role="status" hidden></p>

@@ -464,10 +464,20 @@ input {
   padding: 48px 24px;
 }
 
+/* Painel de Perfil Unificado e Fluido */
+.painel,
+.perfil-painel {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: auto !important;
+  min-height: fit-content;
+}
+
 .perfil-painel {
   display: grid;
   gap: 16px;
-  padding-bottom: 20px;
 }
 
 .perfil-foto {
@@ -493,10 +503,7 @@ input {
 }
 
 .btn-upload,
-.btn-remover-foto,
-.btn-trocar-senha,
-.btn-cancelar,
-.btn-salvar {
+.btn-remover-foto {
   height: 34px;
   padding: 0 14px;
   border-radius: 999px;
@@ -510,41 +517,167 @@ input {
   align-items: center;
   background: #472969;
   color: #fff;
+  border: none;
 }
 
-.btn-upload:hover,
-.btn-salvar:hover {
+.btn-upload:hover {
   filter: brightness(1.12);
 }
 
-.btn-remover-foto,
-.btn-cancelar {
+.btn-remover-foto {
   border: 1px solid #d9d3e0;
   background: #fff;
   color: #8c79a0;
 }
 
-.btn-remover-foto:hover,
-.btn-cancelar:hover {
+.btn-remover-foto:hover {
   color: #472969;
   border-color: #472969;
 }
 
-.perfil-senha-linha {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+.perfil-dados {
+  display: grid;
   gap: 12px;
+  margin: 0;
 }
 
-.btn-trocar-senha,
-.btn-salvar {
+.perfil-linha-dado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #f0edf5;
+  padding-bottom: 8px;
+}
+
+.perfil-linha-dado dt {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8c79a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.perfil-linha-dado dd {
+  font-size: 15px;
+  font-weight: 600;
+  color: #472969;
+  margin: 2px 0 0;
+}
+
+.perfil-linha-botoes {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  align-items: flex-start;
+}
+
+.perfil-botoes-acao {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-acao-primaria {
+  background: #472969;
+  color: #fff;
   border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-acao-secundaria {
   background: #fddafe;
   color: #ff24bd;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.btn-salvar {
+/* Formulários de Edição e Senha */
+.form-perfil-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.form-perfil-edit h3 {
+  color: #2d3748;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.form-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.form-grupo input {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  background: #fff;
+  color: #2d3748;
+}
+
+.form-grupo input:focus {
+  border-color: #472969;
+}
+
+.form-linha-dupla {
+  display: flex;
+  gap: 8px;
+}
+
+.form-flex-grow {
+  flex: 1;
+}
+
+.form-cep-curto {
+  width: 105px;
+}
+
+.form-estado-curto {
+  width: 70px;
+}
+
+.form-botoes-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  padding-bottom: 6px;
+}
+
+.btn-cancelar-acao,
+.btn-salvar-acao {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-cancelar-acao {
+  border: 1px solid #cbd5e0;
+  background: #fff;
+  color: #4a5568;
+}
+
+.btn-salvar-acao {
+  border: none;
   background: #472969;
   color: #fff;
 }
@@ -553,12 +686,14 @@ input {
   font-size: 13px;
   font-weight: 500;
   color: #2f8f62;
+  margin-top: 6px;
 }
 
 .form-senha-msg.is-erro {
   color: #c4476a;
 }
 
+/* Secção de Salões e Sugestões */
 .sugestoes {
   margin-top: 34px;
   color: #fff;
@@ -723,6 +858,7 @@ input {
   filter: brightness(0.96);
 }
 
+/* Responsividade Adaptada para Telemóveis */
 @media (max-width: 1100px) {
   .sidebar {
     width: 300px;
@@ -755,8 +891,6 @@ input {
   }
 }
 
-/* Otimização mobile extrema para evitar estouro da caixa branca */
-/* Correção definitiva para o painel de perfil em telemóveis reais */
 @media (max-width: 860px) {
   .dashboard {
     flex-direction: column;
@@ -784,15 +918,15 @@ input {
 
   .conteudo {
     overflow: visible !important;
-    padding: 20px 12px 120px 12px !important;
+    padding: 20px 12px 100px 12px !important;
   }
 
-  /* Faz com que a caixa branca no telemóvel acompanhe todo o conteúdo com folga de sobra em baixo */
-  #view-perfil .perfil-painel {
+  /* Garante que o painel no telemóvel cresce naturalmente sem estourar o fundo */
+  .perfil-painel {
     max-height: none !important;
-    overflow-y: visible !important;
     height: auto !important;
-    padding-bottom: 40px !important;
+    overflow: visible !important;
+    padding-bottom: 30px !important;
   }
 }
 
@@ -800,14 +934,4 @@ input {
   .saloes {
     grid-template-columns: 1fr;
   }
-}
-
-.painel,
-.perfil-painel {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  height: auto !important;
-  min-height: fit-content;
 }
