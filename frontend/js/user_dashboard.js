@@ -483,6 +483,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             perfilDadosVisualizacao.hidden = true;
             formEditarPerfil.hidden = false;
+
+            // <--- ADICIONE ESTA LINHA: Garante que o painel rola para o topo ao abrir o formulário
+            const painelPerfil = document.querySelector('.perfil-painel');
+            if (painelPerfil) painelPerfil.scrollTop = 0;
         });
     }
 

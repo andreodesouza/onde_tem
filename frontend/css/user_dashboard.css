@@ -865,3 +865,31 @@ input {
     grid-template-columns: 1fr;
   }
 }
+
+.painel,
+.perfil-painel {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  height: auto !important;
+  min-height: fit-content;
+}
+
+#view-perfil .perfil-painel {
+  max-height: calc(100vh - 140px);
+  overflow-y: auto !important;
+  padding-bottom: 40px !important;
+  scrollbar-width: thin;
+  /* Deixa a barra de scroll elegante no Firefox */
+}
+
+/* Barra de scroll customizada para Chrome/Safari/Edge */
+#view-perfil .perfil-painel::-webkit-scrollbar {
+  width: 6px;
+}
+
+#view-perfil .perfil-painel::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}

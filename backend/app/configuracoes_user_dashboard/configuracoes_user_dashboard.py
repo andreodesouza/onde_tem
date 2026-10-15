@@ -79,8 +79,19 @@ def atualizar_perfil_usuario(dados: UsuarioPerfilUpdateSchema, db: Session = Dep
             raise HTTPException(status_code=400, detail="A senha atual não confere.")
         usuario.senha = dados_dict["nova_senha"]
     
+    # Atualiza o nome na tabela principal e nos agendamentos antigos pelo nome anterior
+    nome_antigo = usuario.nome
     if "nome" in dados_dict and dados_dict["nome"]:
-        usuario.nome = dados_dict["nome"]
+        novo_nome = dados_dict["nome"]
+        
+        # Atualiza os agendamentos que tinham o nome antigo para o novo nome
+        from ..models import AgendamentoModel
+        db.query(AgendamentoModel).filter(
+            AgendamentoModel.cliente_nome == nome_antigo
+        ).update({"cliente_nome": novo_nome})
+        
+        usuario.nome = novo_nome
+        db.commit()
         
     if "telefone" in dados_dict and dados_dict["telefone"]:
         if hasattr(usuario, "telefone"):
