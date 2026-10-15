@@ -912,3 +912,10 @@ input {
     overflow-y: visible !important;
   }
 }
+
+@media (max-width: 860px) {
+  #view-perfil .perfil-painel {
+    padding-bottom: 120px !important;
+    /* Dá uma folga enorme no fim do scroll no telemóvel */
+  }
+}
