@@ -159,10 +159,12 @@
       <section class="view" id="view-perfil" hidden>
         <header class="saudacao">
           <h1>Meu Perfil</h1>
-          <p>Seus dados de acesso</p>
+          <p>Seus dados de acesso e configurações</p>
         </header>
-        <section class="painel perfil-painel">
-          <div class="perfil-foto">
+
+        <div class="perfil-card-container">
+          <!-- Cabeçalho com Avatar e Ações da Foto -->
+          <div class="perfil-header-box">
             <div class="avatar avatar-grande" id="avatar-perfil" aria-hidden="true">
               <svg class="avatar-vazio" id="avatar-perfil-vazio" viewBox="0 0 100 133" aria-hidden="true">
                 <circle cx="50" cy="40" r="13" />
@@ -170,125 +172,128 @@
               </svg>
               <img id="avatar-perfil-img" alt="" hidden />
             </div>
-            <div class="perfil-foto-acoes">
-              <p>Foto do perfil</p>
-              <label class="btn-upload">
-                Escolher foto
-                <input type="file" id="input-foto" accept="image/*" hidden />
-              </label>
-              <button type="button" class="btn-remover-foto" id="btn-remover-foto" hidden>Remover foto</button>
+            <div class="perfil-header-info">
+              <h3>Foto do Perfil</h3>
+              <p>Envie uma imagem para personalizar a sua conta.</p>
+              <div class="perfil-header-botoes">
+                <label class="btn-primario-moderno">
+                  Escolher foto
+                  <input type="file" id="input-foto" accept="image/*" hidden />
+                </label>
+                <button type="button" class="btn-perigo-moderno" id="btn-remover-foto" hidden>Remover foto</button>
+              </div>
             </div>
           </div>
 
-          <!-- Visualização de Dados do Perfil -->
-          <dl class="perfil-dados" id="perfil-dados-visualizacao">
-            <div class="perfil-linha-dado">
+          <!-- Modo de Visualização (Leitura dos Dados) -->
+          <div class="perfil-info-grid" id="perfil-dados-visualizacao">
+            <div class="info-bloco">
+              <span class="info-rotulo">Nome Completo</span>
+              <span class="info-dado" id="perfil-nome">—</span>
+            </div>
+            <div class="info-bloco">
+              <span class="info-rotulo">E-mail de Acesso</span>
+              <span class="info-dado" id="perfil-email">—</span>
+            </div>
+            <div class="info-bloco">
+              <span class="info-rotulo">Telefone / Telemóvel</span>
+              <span class="info-dado" id="perfil-telefone">—</span>
+            </div>
+            <div class="info-bloco span-full">
+              <span class="info-rotulo">Endereço Residencial</span>
+              <span class="info-dado" id="perfil-endereco">—</span>
+            </div>
+            <div class="info-bloco span-full perfil-bloco-acoes">
               <div>
-                <dt>Nome</dt>
-                <dd id="perfil-nome">—</dd>
+                <span class="info-rotulo">Segurança da Conta</span>
+                <span class="info-dado" style="letter-spacing: 2px;">••••••••</span>
+              </div>
+              <div class="perfil-botoes-linha">
+                <button type="button" class="btn-primario-moderno" id="btn-editar-perfil">Editar Perfil</button>
+                <button type="button" class="btn-secundario-moderno" id="btn-trocar-senha">Trocar Senha</button>
               </div>
             </div>
-            <div class="perfil-linha-dado">
-              <div>
-                <dt>E-mail</dt>
-                <dd id="perfil-email">—</dd>
-              </div>
-            </div>
-            <div class="perfil-linha-dado">
-              <div>
-                <dt>Telefone</dt>
-                <dd id="perfil-telefone">—</dd>
-              </div>
-            </div>
-            <div class="perfil-linha-dado">
-              <div>
-                <dt>Endereço</dt>
-                <dd id="perfil-endereco">—</dd>
-              </div>
-            </div>
-            <div class="perfil-linha-dado perfil-linha-botoes">
-              <div>
-                <dt>Segurança</dt>
-                <dd class="perfil-senha-linha">
-                  <span id="perfil-senha" aria-label="Senha oculta">••••••••</span>
-                </dd>
-              </div>
-              <div class="perfil-botoes-acao">
-                <button type="button" class="btn-acao-primaria" id="btn-editar-perfil">Editar Perfil</button>
-                <button type="button" class="btn-acao-secundaria" id="btn-trocar-senha">Trocar senha</button>
-              </div>
-            </div>
-          </dl>
+          </div>
 
-          <!-- Formulário de Edição de Perfil Reestruturado -->
-          <form class="form-perfil-edit" id="form-editar-perfil" hidden>
-            <h3>Editar Perfil</h3>
-            <div class="form-grupo">
+          <!-- Formulário de Edição de Perfil (Grelha Adaptativa) -->
+          <form class="form-moderno-grid" id="form-editar-perfil" hidden>
+            <h3 class="form-titulo-bloco">Editar Informações Pessoais</h3>
+
+            <div class="input-grupo span-full">
               <label>Nome Completo</label>
               <input type="text" id="input-edit-nome" required />
             </div>
-            <div class="form-grupo">
+
+            <div class="input-grupo span-full">
               <label>Telefone de Contato</label>
               <input type="text" id="input-edit-telefone" placeholder="(XX) XXXXX-XXXX" />
             </div>
-            <div class="form-linha-dupla">
-              <div class="form-grupo form-cep-curto">
-                <label>CEP</label>
-                <input type="text" id="input-edit-cep" placeholder="00000-000" maxlength="9" />
-              </div>
-              <div class="form-grupo form-flex-grow">
-                <label>Rua / Logradouro</label>
-                <input type="text" id="input-edit-rua" placeholder="Nome da rua" />
-              </div>
+
+            <div class="input-grupo input-cep">
+              <label>CEP</label>
+              <input type="text" id="input-edit-cep" placeholder="00000-000" maxlength="9" />
             </div>
-            <div class="form-linha-dupla">
-              <div class="form-grupo form-cep-curto">
-                <label>Número</label>
-                <input type="text" id="input-edit-numero" placeholder="Nº" />
-              </div>
-              <div class="form-grupo form-flex-grow">
-                <label>Bairro</label>
-                <input type="text" id="input-edit-bairro" placeholder="Bairro" />
-              </div>
+
+            <div class="input-grupo input-rua">
+              <label>Rua / Logradouro</label>
+              <input type="text" id="input-edit-rua" placeholder="Nome da rua" />
             </div>
-            <div class="form-linha-dupla">
-              <div class="form-grupo form-flex-grow">
-                <label>Cidade</label>
-                <input type="text" id="input-edit-cidade" placeholder="Cidade" />
-              </div>
-              <div class="form-grupo form-estado-curto">
-                <label>Estado</label>
-                <input type="text" id="input-edit-estado" placeholder="UF" maxlength="2" />
-              </div>
+
+            <div class="input-grupo input-numero">
+              <label>Número</label>
+              <input type="text" id="input-edit-numero" placeholder="Nº" />
             </div>
-            <div class="form-botoes-container">
-              <button type="button" class="btn-cancelar-acao" id="btn-cancelar-edit">Cancelar</button>
-              <button type="submit" class="btn-salvar-acao">Salvar Alterações</button>
+
+            <div class="input-grupo input-bairro">
+              <label>Bairro</label>
+              <input type="text" id="input-edit-bairro" placeholder="Bairro" />
+            </div>
+
+            <div class="input-grupo input-cidade">
+              <label>Cidade</label>
+              <input type="text" id="input-edit-cidade" placeholder="Cidade" />
+            </div>
+
+            <div class="input-grupo input-estado">
+              <label>Estado</label>
+              <input type="text" id="input-edit-estado" placeholder="UF" maxlength="2"
+                style="text-transform: uppercase;" />
+            </div>
+
+            <div class="form-acoes-rodape span-full">
+              <button type="button" class="btn-secundario-moderno" id="btn-cancelar-edit">Cancelar</button>
+              <button type="submit" class="btn-primario-moderno">Salvar Alterações</button>
             </div>
           </form>
 
-          <!-- Formulário de Troca de Senha Reestruturado -->
-          <form class="form-perfil-edit" id="form-senha" hidden>
-            <h3>Trocar senha</h3>
-            <div class="form-grupo">
+          <!-- Formulário de Troca de Senha -->
+          <form class="form-moderno-grid" id="form-senha" hidden>
+            <h3 class="form-titulo-bloco">Modificar Palavra-passe</h3>
+
+            <div class="input-grupo span-full">
               <label>Senha atual</label>
               <input type="password" id="senha-atual" autocomplete="current-password" required />
             </div>
-            <div class="form-grupo">
+
+            <div class="input-grupo span-full">
               <label>Nova senha</label>
               <input type="password" id="senha-nova" autocomplete="new-password" minlength="6" required />
             </div>
-            <div class="form-grupo">
+
+            <div class="input-grupo span-full">
               <label>Confirmar nova senha</label>
               <input type="password" id="senha-confirma" autocomplete="new-password" minlength="6" required />
             </div>
-            <div class="form-botoes-container">
-              <button type="button" class="btn-cancelar-acao" id="btn-cancelar-senha">Cancelar</button>
-              <button type="submit" class="btn-salvar-acao">Salvar senha</button>
+
+            <div class="form-acoes-rodape span-full">
+              <button type="button" class="btn-secundario-moderno" id="btn-cancelar-senha"
+                onclick="document.getElementById('form-senha').hidden=true; document.getElementById('perfil-dados-visualizacao').hidden=false;">Cancelar</button>
+              <button type="submit" class="btn-primario-moderno">Salvar Senha</button>
             </div>
           </form>
+
           <p class="form-senha-msg" id="form-senha-msg" role="status" hidden></p>
-        </section>
+        </div>
       </section>
     </main>
   </div>

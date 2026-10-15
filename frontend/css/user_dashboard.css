@@ -464,233 +464,234 @@ input {
   padding: 48px 24px;
 }
 
-/* Painel de Perfil Unificado e Fluido */
-.painel,
-.perfil-painel {
+/* --- ARQUITETURA MODERNA E FLUIDA DO PERFIL --- */
+.perfil-card-container {
   background: #ffffff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  height: auto !important;
-  min-height: fit-content;
-}
-
-.perfil-painel {
-  display: grid;
-  gap: 16px;
-}
-
-.perfil-foto {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #e4dced;
-}
-
-.perfil-foto-acoes {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 10px;
-}
-
-.perfil-foto-acoes p {
-  width: 100%;
-  font-size: 15px;
-  font-weight: 600;
-  color: #472969;
-}
-
-.btn-upload,
-.btn-remover-foto {
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn-upload {
-  display: inline-flex;
-  align-items: center;
-  background: #472969;
-  color: #fff;
-  border: none;
-}
-
-.btn-upload:hover {
-  filter: brightness(1.12);
-}
-
-.btn-remover-foto {
-  border: 1px solid #d9d3e0;
-  background: #fff;
-  color: #8c79a0;
-}
-
-.btn-remover-foto:hover {
-  color: #472969;
-  border-color: #472969;
-}
-
-.perfil-dados {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-}
-
-.perfil-linha-dado {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #f0edf5;
-  padding-bottom: 8px;
-}
-
-.perfil-linha-dado dt {
-  font-size: 11px;
-  font-weight: 500;
-  color: #8c79a0;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.perfil-linha-dado dd {
-  font-size: 15px;
-  font-weight: 600;
-  color: #472969;
-  margin: 2px 0 0;
-}
-
-.perfil-linha-botoes {
-  border-bottom: none !important;
-  padding-bottom: 0 !important;
-  align-items: flex-start;
-}
-
-.perfil-botoes-acao {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.btn-acao-primaria {
-  background: #472969;
-  color: #fff;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.btn-acao-secundaria {
-  background: #fddafe;
-  color: #ff24bd;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* Formulários de Edição e Senha */
-.form-perfil-edit {
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 24px;
+  width: 100%;
 }
 
-.form-perfil-edit h3 {
-  color: #2d3748;
+.perfil-header-box {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.perfil-header-info h3 {
   font-size: 17px;
   font-weight: 600;
-  margin-bottom: 2px;
+  color: #2d3748;
+  margin-bottom: 4px;
 }
 
-.form-grupo {
+.perfil-header-info p {
+  font-size: 13px;
+  color: #718096;
+  margin-bottom: 12px;
+}
+
+.perfil-header-botoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Grelha de Informações Estáticas */
+.perfil-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.info-bloco {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #4a5568;
+  gap: 6px;
+  background: #f8fafc;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
-.form-grupo input {
-  padding: 8px 12px;
-  border: 1px solid #cbd5e0;
-  border-radius: 8px;
+.span-full {
+  grid-column: span 2;
+}
+
+.info-rotulo {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #718096;
+  letter-spacing: 0.6px;
+}
+
+.info-dado {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2d3748;
+  word-break: break-word;
+}
+
+.perfil-bloco-acoes {
+  flex-direction: row !important;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.perfil-botoes-linha {
+  display: flex;
+  gap: 10px;
+}
+
+/* Botões Modernos Padronizados */
+.btn-primario-moderno,
+.btn-secundario-moderno,
+.btn-perigo-moderno {
+  height: 40px;
+  padding: 0 20px;
+  border-radius: 10px;
   font-size: 13px;
-  outline: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-primario-moderno {
+  background: #472969;
+  color: #fff;
+  border: none;
+}
+
+.btn-primario-moderno:hover {
+  filter: brightness(1.15);
+}
+
+.btn-secundario-moderno {
   background: #fff;
+  color: #4a5568;
+  border: 1px solid #cbd5e0;
+}
+
+.btn-secundario-moderno:hover {
+  background: #f7fafc;
+  border-color: #a0aec0;
   color: #2d3748;
 }
 
-.form-grupo input:focus {
-  border-color: #472969;
+.btn-perigo-moderno {
+  background: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #fed7d7;
 }
 
-.form-linha-dupla {
-  display: flex;
-  gap: 8px;
+.btn-perigo-moderno:hover {
+  background: #fed7d7;
 }
 
-.form-flex-grow {
-  flex: 1;
+/* Formulários Modernos em Grelha Flexível */
+.form-moderno-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr 100px 1fr;
+  gap: 14px;
 }
 
-.form-cep-curto {
-  width: 105px;
-}
-
-.form-estado-curto {
-  width: 70px;
-}
-
-.form-botoes-container {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-  padding-bottom: 6px;
-}
-
-.btn-cancelar-acao,
-.btn-salvar-acao {
-  flex: 1;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 14px;
+.form-titulo-bloco {
+  grid-column: span 4;
+  font-size: 18px;
   font-weight: 600;
-  cursor: pointer;
+  color: #2d3748;
+  margin-bottom: 4px;
 }
 
-.btn-cancelar-acao {
-  border: 1px solid #cbd5e0;
-  background: #fff;
+.input-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-grupo label {
+  font-size: 12px;
+  font-weight: 600;
   color: #4a5568;
 }
 
-.btn-salvar-acao {
-  border: none;
-  background: #472969;
-  color: #fff;
+.input-grupo input {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid #cbd5e0;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #2d3748;
+  background: #fff;
+  outline: none;
+  width: 100%;
+}
+
+.input-grupo input:focus {
+  border-color: #472969;
+  box-shadow: 0 0 0 3px rgba(71, 41, 105, 0.12);
+}
+
+/* Posicionamento dos campos no Grid */
+.input-grupo.span-full {
+  grid-column: span 4;
+}
+
+.input-cep {
+  grid-column: span 1;
+}
+
+.input-rua {
+  grid-column: span 3;
+}
+
+.input-numero {
+  grid-column: span 1;
+}
+
+.input-bairro {
+  grid-column: span 3;
+}
+
+.input-cidade {
+  grid-column: span 3;
+}
+
+.input-estado {
+  grid-column: span 1;
+}
+
+.form-acoes-rodape {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.form-acoes-rodape button {
+  flex: 1;
+  height: 44px;
 }
 
 .form-senha-msg {
   font-size: 13px;
   font-weight: 500;
   color: #2f8f62;
-  margin-top: 6px;
+  margin-top: 8px;
 }
 
 .form-senha-msg.is-erro {
-  color: #c4476a;
+  color: #e53e3e;
 }
 
 /* Secção de Salões e Sugestões */
@@ -858,7 +859,7 @@ input {
   filter: brightness(0.96);
 }
 
-/* Responsividade Adaptada para Telemóveis */
+/* Responsividade Adaptada */
 @media (max-width: 1100px) {
   .sidebar {
     width: 300px;
@@ -918,15 +919,57 @@ input {
 
   .conteudo {
     overflow: visible !important;
-    padding: 20px 12px 100px 12px !important;
+    padding: 20px 14px 120px 14px !important;
   }
 
-  /* Garante que o painel no telemóvel cresce naturalmente sem estourar o fundo */
-  .perfil-painel {
-    max-height: none !important;
+  .perfil-card-container {
+    padding: 20px;
+    border-radius: 16px;
     height: auto !important;
     overflow: visible !important;
-    padding-bottom: 30px !important;
+  }
+
+  .perfil-header-box {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .perfil-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .span-full {
+    grid-column: span 1;
+  }
+
+  .perfil-bloco-acoes {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 16px;
+  }
+
+  .perfil-botoes-linha {
+    width: 100%;
+  }
+
+  .perfil-botoes-linha button {
+    flex: 1;
+  }
+
+  .form-moderno-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-titulo-bloco,
+  .input-grupo.span-full,
+  .input-cep,
+  .input-rua,
+  .input-numero,
+  .input-bairro,
+  .input-cidade,
+  .input-estado {
+    grid-column: span 1;
   }
 }
 
