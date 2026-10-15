@@ -96,8 +96,8 @@ input {
 }
 
 .avatar-grande {
-  width: 118px;
-  height: 157px;
+  width: 104px;
+  height: 138px;
   flex-shrink: 0;
   cursor: default;
   filter: none;
@@ -190,10 +190,6 @@ input {
 
 .menu-item.is-active {
   background: #5c5c5c;
-}
-
-.menu-item.is-active:hover {
-  filter: brightness(1.06);
 }
 
 .menu-icone {
@@ -454,10 +450,6 @@ input {
   cursor: pointer;
 }
 
-.btn-confirmar:hover {
-  filter: brightness(0.97);
-}
-
 .lista-vazia {
   padding: 28px 4px 20px;
   color: #8c79a0;
@@ -474,15 +466,15 @@ input {
 
 .perfil-painel {
   display: grid;
-  gap: 20px;
-  padding-bottom: 24px;
+  gap: 16px;
+  padding-bottom: 20px;
 }
 
 .perfil-foto {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding-bottom: 18px;
+  gap: 16px;
+  padding-bottom: 14px;
   border-bottom: 1px solid #e4dced;
 }
 
@@ -490,12 +482,12 @@ input {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px 12px;
+  gap: 8px 10px;
 }
 
 .perfil-foto-acoes p {
   width: 100%;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: #472969;
 }
@@ -505,10 +497,10 @@ input {
 .btn-trocar-senha,
 .btn-cancelar,
 .btn-salvar {
-  height: 36px;
-  padding: 0 16px;
+  height: 34px;
+  padding: 0 14px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -763,7 +755,7 @@ input {
   }
 }
 
-/* Responsividade mobile aprimorada para eliminar qualquer corte nos botões */
+/* Otimização mobile extrema para evitar estouro da caixa branca */
 @media (max-width: 860px) {
   .dashboard {
     flex-direction: column;
@@ -791,13 +783,14 @@ input {
 
   .conteudo {
     overflow: visible !important;
-    padding: 24px 16px 80px 16px !important;
+    padding: 20px 12px 100px 12px !important;
   }
 
   #view-perfil .perfil-painel {
-    max-height: none !important;
-    overflow-y: visible !important;
-    padding-bottom: 50px !important;
+    max-height: 75vh !important;
+    overflow-y: auto !important;
+    padding-bottom: 60px !important;
+    scrollbar-width: thin;
   }
 }
 
@@ -811,7 +804,7 @@ input {
 .perfil-painel {
   background: #ffffff;
   border-radius: 16px;
-  padding: 24px;
+  padding: 22px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   height: auto !important;
   min-height: fit-content;
