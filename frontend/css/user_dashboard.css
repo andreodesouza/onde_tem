@@ -889,7 +889,26 @@ input {
   width: 6px;
 }
 
-#view-perfil .perfil-painel::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 4px;
+/* Torna o painel de perfil rolável e espaçado em qualquer ecrã */
+#view-perfil .perfil-painel {
+  max-height: calc(100vh - 120px) !important;
+  overflow-y: auto !important;
+  padding-bottom: 50px !important;
+}
+
+/* Garante que o container de conteúdo principal também permite scroll se necessário no mobile */
+@media (max-width: 860px) {
+  .dashboard {
+    overflow: auto !important;
+    height: auto !important;
+  }
+
+  .conteudo {
+    overflow: visible !important;
+  }
+
+  #view-perfil .perfil-painel {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
 }
