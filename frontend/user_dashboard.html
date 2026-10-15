@@ -180,7 +180,6 @@
             </div>
           </div>
 
-          <!-- Visualização de Dados do Perfil -->
           <!-- Visualização de Dados do Perfil Otimizada -->
           <dl class="perfil-dados" id="perfil-dados-visualizacao" style="display: grid; gap: 12px; margin: 0;">
             <div
@@ -223,9 +222,12 @@
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 4px;">
               <div>
+                <dt
+                  style="font-size: 11px; font-weight: 500; color: #8c79a0; text-transform: uppercase; letter-spacing: 0.5px;">
+                  Segurança</dt>
                 <dd class="perfil-senha-linha"
                   style="font-size: 15px; font-weight: 600; color: #472969; margin: 2px 0 0;">
-
+                  <span id="perfil-senha" aria-label="Senha oculta" style="letter-spacing: 2px;">••••••••</span>
                 </dd>
               </div>
               <div style="display: flex; gap: 8px;">
@@ -239,75 +241,71 @@
             </div>
           </dl>
 
-          <!-- Formulário de Edição de Perfil Compacto e Perfeito -->
+          <!-- Formulário de Edição de Perfil Compacto e Responsivo -->
           <form class="form-senha" id="form-editar-perfil" hidden
-            style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 90px; padding-bottom: 60px;">
-            <h3 style="color: #2d3748; font-size: 17px; font-weight: 600; margin-bottom: 0;">Editar Perfil</h3>
+            style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; padding-bottom: 10px;">
+            <h3 style="color: #2d3748; font-size: 16px; font-weight: 600; margin-bottom: 0;">Editar Perfil</h3>
 
             <label
-              style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+              style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
               Nome Completo
               <input type="text" id="input-edit-nome" required
                 style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
             </label>
 
             <label
-              style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+              style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
               Telefone de Contato
               <input type="text" id="input-edit-telefone" placeholder="(XX) XXXXX-XXXX"
                 style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
             </label>
 
-            <!-- Linha CEP e Rua -->
-            <div style="display: grid; grid-template-columns: 110px 1fr; gap: 8px;">
+            <div style="display: grid; grid-template-columns: 105px 1fr; gap: 8px;">
               <label
-                style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+                style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
                 CEP
                 <input type="text" id="input-edit-cep" placeholder="00000-000" maxlength="9"
                   style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
               </label>
               <label
-                style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+                style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
                 Rua / Logradouro
                 <input type="text" id="input-edit-rua" placeholder="Nome da rua"
                   style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
               </label>
             </div>
 
-            <!-- Linha Número e Bairro -->
-            <div style="display: grid; grid-template-columns: 90px 1fr; gap: 8px;">
+            <div style="display: grid; grid-template-columns: 85px 1fr; gap: 8px;">
               <label
-                style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+                style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
                 Número
                 <input type="text" id="input-edit-numero" placeholder="Nº"
                   style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
               </label>
               <label
-                style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+                style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
                 Bairro
                 <input type="text" id="input-edit-bairro" placeholder="Bairro"
                   style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
               </label>
             </div>
 
-            <!-- Linha Cidade e Estado -->
-            <div style="display: grid; grid-template-columns: 1fr 75px; gap: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 70px; gap: 8px;">
               <label
-                style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+                style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
                 Cidade
                 <input type="text" id="input-edit-cidade" placeholder="Cidade"
                   style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
               </label>
               <label
-                style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+                style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
                 Estado
                 <input type="text" id="input-edit-estado" placeholder="UF" maxlength="2"
                   style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff; text-transform: uppercase;" />
               </label>
             </div>
 
-            <!-- Botões de Ação Compactos -->
-            <div class="form-senha-acoes" style="display: flex; gap: 10px; margin-top: 8px;">
+            <div class="form-senha-acoes" style="display: flex; gap: 10px; margin-top: 10px;">
               <button type="button" class="btn-cancelar" id="btn-cancelar-edit"
                 style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e0; background: #fff; color: #4a5568; font-weight: 600; cursor: pointer;">Cancelar</button>
               <button type="submit" class="btn-salvar"
@@ -316,31 +314,30 @@
             </div>
           </form>
 
-          <!-- Formulário de Troca de Senha -->
           <!-- Formulário de Troca de Senha Compacto -->
           <form class="form-senha" id="form-senha" hidden
-            style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; padding-bottom: 5px;">
-            <h3 style="color: #2d3748; font-size: 17px; font-weight: 600; margin-bottom: 0;">Trocar senha</h3>
+            style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; padding-bottom: 10px;">
+            <h3 style="color: #2d3748; font-size: 16px; font-weight: 600; margin-bottom: 0;">Trocar senha</h3>
             <label
-              style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+              style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
               Senha atual
               <input type="password" id="senha-atual" autocomplete="current-password" required
                 style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
             </label>
             <label
-              style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+              style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
               Nova senha
               <input type="password" id="senha-nova" autocomplete="new-password" minlength="6" required
                 style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
             </label>
             <label
-              style="display: flex; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 500; color: #4a5568;">
+              style="display: flex; flex-direction: column; gap: 3px; font-size: 11px; font-weight: 500; color: #4a5568;">
               Confirmar nova senha
               <input type="password" id="senha-confirma" autocomplete="new-password" minlength="6" required
                 style="padding: 8px 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; outline: none; background: #fff;" />
             </label>
-            <div class="form-senha-acoes" style="display: flex; gap: 10px; margin-top: 8px;">
-              <button type="button" class="btn-cancelar" id="btn-cancelar-edit"
+            <div class="form-senha-acoes" style="display: flex; gap: 10px; margin-top: 10px;">
+              <button type="button" class="btn-cancelar" id="btn-cancelar-senha-form"
                 style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e0; background: #fff; color: #4a5568; font-weight: 600; cursor: pointer;"
                 onclick="document.getElementById('form-senha').hidden=true; document.getElementById('perfil-dados-visualizacao').hidden=false;">Cancelar</button>
               <button type="submit" class="btn-salvar"

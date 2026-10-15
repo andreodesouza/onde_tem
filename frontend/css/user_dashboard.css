@@ -474,15 +474,15 @@ input {
 
 .perfil-painel {
   display: grid;
-  gap: 28px;
-  padding-bottom: 28px;
+  gap: 20px;
+  padding-bottom: 24px;
 }
 
 .perfil-foto {
   display: flex;
   align-items: center;
   gap: 20px;
-  padding-bottom: 22px;
+  padding-bottom: 18px;
   border-bottom: 1px solid #e4dced;
 }
 
@@ -538,34 +538,11 @@ input {
   border-color: #472969;
 }
 
-.perfil-dados {
-  display: grid;
-  gap: 18px;
-  margin: 0;
-}
-
-.perfil-dados dt {
-  font-size: 13px;
-  font-weight: 500;
-  color: #8c79a0;
-}
-
-.perfil-dados dd {
-  margin: 2px 0 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #472969;
-}
-
 .perfil-senha-linha {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-}
-
-.perfil-senha-linha span {
-  letter-spacing: 2px;
 }
 
 .btn-trocar-senha,
@@ -580,45 +557,6 @@ input {
   color: #fff;
 }
 
-.btn-trocar-senha:hover {
-  filter: brightness(0.97);
-}
-
-.form-senha {
-  display: grid;
-  gap: 14px;
-  max-width: 420px;
-  padding-top: 4px;
-}
-
-.form-senha h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #472969;
-}
-
-.form-senha label {
-  display: grid;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #8c79a0;
-}
-
-.form-senha input {
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid #e4dced;
-  border-radius: 12px;
-  font-size: 15px;
-  color: #472969;
-  outline: none;
-}
-
-.form-senha input:focus {
-  border-color: #472969;
-}
-
 .form-senha-msg {
   font-size: 13px;
   font-weight: 500;
@@ -627,11 +565,6 @@ input {
 
 .form-senha-msg.is-erro {
   color: #c4476a;
-}
-
-.form-senha-acoes {
-  display: flex;
-  gap: 10px;
 }
 
 .sugestoes {
@@ -830,12 +763,13 @@ input {
   }
 }
 
+/* Responsividade mobile aprimorada para eliminar qualquer corte nos botões */
 @media (max-width: 860px) {
   .dashboard {
     flex-direction: column;
-    height: auto;
+    height: auto !important;
     min-height: 100vh;
-    overflow: visible;
+    overflow-y: auto !important;
   }
 
   .sidebar {
@@ -856,7 +790,14 @@ input {
   }
 
   .conteudo {
-    overflow: visible;
+    overflow: visible !important;
+    padding: 24px 16px 80px 16px !important;
+  }
+
+  #view-perfil .perfil-painel {
+    max-height: none !important;
+    overflow-y: visible !important;
+    padding-bottom: 50px !important;
   }
 }
 
@@ -874,48 +815,4 @@ input {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   height: auto !important;
   min-height: fit-content;
-}
-
-#view-perfil .perfil-painel {
-  max-height: calc(100vh - 140px);
-  overflow-y: auto !important;
-  padding-bottom: 40px !important;
-  scrollbar-width: thin;
-  /* Deixa a barra de scroll elegante no Firefox */
-}
-
-/* Barra de scroll customizada para Chrome/Safari/Edge */
-#view-perfil .perfil-painel::-webkit-scrollbar {
-  width: 6px;
-}
-
-/* Torna o painel de perfil rolável e espaçado em qualquer ecrã */
-#view-perfil .perfil-painel {
-  max-height: calc(100vh - 120px) !important;
-  overflow-y: auto !important;
-  padding-bottom: 50px !important;
-}
-
-/* Garante que o container de conteúdo principal também permite scroll se necessário no mobile */
-@media (max-width: 860px) {
-  .dashboard {
-    overflow: auto !important;
-    height: auto !important;
-  }
-
-  .conteudo {
-    overflow: visible !important;
-  }
-
-  #view-perfil .perfil-painel {
-    max-height: none !important;
-    overflow-y: visible !important;
-  }
-}
-
-@media (max-width: 860px) {
-  #view-perfil .perfil-painel {
-    padding-bottom: 120px !important;
-    /* Dá uma folga enorme no fim do scroll no telemóvel */
-  }
 }
