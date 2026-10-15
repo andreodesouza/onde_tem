@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Boolean, Integer, String, Text, Float, ForeignKey, DateTime
 from sqlalchemy.sql import func
 from .database import Base
+from sqlalchemy.orm import relationship
 
 class UsuarioModel(Base):
     __tablename__ = "usuarios"
@@ -73,3 +74,20 @@ class AgendamentoModel(Base):
     profissional_id = Column(Integer, ForeignKey("profissionais.id"), nullable=True)
     data_hora = Column(String, nullable=False) # Ex: "2026-10-14 11:00"
     status = Column(String, default="pendente") # pendente, confirmad
+
+class UsuarioPerfilModel(Base):
+    __tablename__ = "usuario_perfil"
+
+    id = Column(Integer, primary_key=True, index=True)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), unique=True, index=True)
+    nome = Column(String, nullable=True)
+    telefone = Column(String, nullable=True)
+    cep = Column(String, nullable=True)
+    rua = Column(String, nullable=True)
+    numero = Column(String, nullable=True)
+    bairro = Column(String, nullable=True)
+    cidade = Column(String, nullable=True)
+    estado = Column(String, nullable=True)
+    foto = Column(String, nullable=True) # <--- Adicionado para guardar a foto do perfil
+
+    usuario = relationship("UsuarioModel", backref="perfil")

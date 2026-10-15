@@ -61,6 +61,7 @@ def listar_agendamentos_empresa(empresa_id: int, db: Session = Depends(get_db)):
         resultado.append({
             "id": ag.id,
             "cliente": ag.cliente_nome,
+            "empresa_id": ag.empresa_id, # <--- ADICIONE ESTA LINHA
             "servico": servico.nome if servico else "Serviço",
             "profissional": prof.nome if prof else "Equipe Geral",
             "data": ag.data_hora,
@@ -75,9 +76,35 @@ def alterar_status_agendamento(agendamento_id: int, empresa_id: int, status_data
         raise HTTPException(status_code=404, detail="Agendamento não encontrado.")
     
     novo_status = status_data.get("status")
-    if novo_status not in ["pendente", "confirmado", "recusado", "concluido"]:
+    # Adicionado "cancelado" na lista de status válidos
+    if novo_status not in ["pendente", "confirmado", "recusado", "concluido", "cancelado"]:
         raise HTTPException(status_code=400, detail="Status inválido.")
         
     ag.status = novo_status
     db.commit()
     return {"mensagem": "Status atualizado com sucesso!"}
+from ..models import ConfiguracaoEmpresaModel # Garanta que importa o model do salão se necessário
+
+@router.get("/cliente")
+def listar_agendamentos_cliente(cliente_nome: str, db: Session = Depends(get_db)):
+    agendamentos = db.query(AgendamentoModel).filter(
+        AgendamentoModel.cliente_nome.ilike(f"%{cliente_nome}%")
+    ).all()
+    
+    resultado = []
+    for ag in agendamentos:
+        servico = db.query(ServicoModel).filter(ServicoModel.id == ag.servico_id).first()
+        prof = db.query(ProfissionalModel).filter(ProfissionalModel.id == ag.profissional_id).first() if ag.profissional_id else None
+        config_salao = db.query(ConfiguracaoEmpresaModel).filter(ConfiguracaoEmpresaModel.empresa_id == ag.empresa_id).first()
+        
+        resultado.append({
+            "id": ag.id,
+            "empresa_id": ag.empresa_id, # <--- ESSENCIAL PARA O CANCELAMENTO
+            "cliente_nome": ag.cliente_nome,
+            "servico_nome": servico.nome if servico else "Serviço",
+            "profissional_nome": prof.nome if prof else "Equipe Geral",
+            "salao_nome": config_salao.nome_fantasia if config_salao else "Estabelecimento",
+            "data_hora": ag.data_hora,
+            "status": ag.status
+        })
+    return resultado

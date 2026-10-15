@@ -9,6 +9,7 @@ from .saloes.saloes import router as saloes_router
 from .configuracoes_salao_dashboard.servicos_profissionais import router as servicos_profissionais_router
 from.configuracoes_salao_dashboard.agenda import router as agenda_router
 from .configuracoes_salao_dashboard.agendamentos import router as agendamentos_router
+from .configuracoes_user_dashboard import configuracoes_user_dashboard as cfg_user # Ou o nome do seu import
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
@@ -30,6 +31,8 @@ app.include_router(servicos_profissionais_router)
 app.include_router(agenda_router)
 
 app.include_router(agendamentos_router)
+
+app.include_router(cfg_user.router)
 
 app.add_middleware(
     CORSMiddleware,

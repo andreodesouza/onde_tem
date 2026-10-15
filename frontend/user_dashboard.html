@@ -91,7 +91,7 @@
                   stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <strong id="stat-agendamentos">2</strong>
+            <strong id="stat-agendamentos">0</strong>
             <span>Agendamentos</span>
           </article>
           <article class="stat">
@@ -102,7 +102,7 @@
                   stroke-linejoin="round" />
               </svg>
             </div>
-            <strong id="stat-confirmados">1</strong>
+            <strong id="stat-confirmados">0</strong>
             <span>Confirmados</span>
           </article>
           <article class="stat">
@@ -112,7 +112,7 @@
                   stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <strong id="stat-finalizados">4</strong>
+            <strong id="stat-finalizados">0</strong>
             <span>Finalizados</span>
           </article>
         </div>
@@ -180,7 +180,8 @@
             </div>
           </div>
 
-          <dl class="perfil-dados">
+          <!-- Visualização de Dados do Perfil -->
+          <dl class="perfil-dados" id="perfil-dados-visualizacao">
             <div>
               <dt>Nome</dt>
               <dd id="perfil-nome">—</dd>
@@ -194,14 +195,68 @@
               <dd id="perfil-telefone">—</dd>
             </div>
             <div>
+              <dt>Endereço</dt>
+              <dd id="perfil-endereco">—</dd>
+            </div>
+            <div>
               <dt>Senha</dt>
               <dd class="perfil-senha-linha">
                 <span id="perfil-senha" aria-label="Senha oculta">••••••••</span>
+                <button type="button" class="btn-trocar-senha" id="btn-editar-perfil"
+                  style="background: #472969; color: #fff;">Editar Perfil</button>
                 <button type="button" class="btn-trocar-senha" id="btn-trocar-senha">Trocar senha</button>
               </dd>
             </div>
           </dl>
 
+          <!-- Formulário de Edição de Perfil com Campos Separados -->
+          <form class="form-senha" id="form-editar-perfil" hidden>
+            <h3>Editar Perfil</h3>
+            <label>
+              Nome
+              <input type="text" id="input-edit-nome" required />
+            </label>
+            <label>
+              Telefone
+              <input type="text" id="input-edit-telefone" placeholder="(XX) XXXXX-XXXX" />
+            </label>
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
+              <label>
+                CEP
+                <input type="text" id="input-edit-cep" placeholder="00000-000" maxlength="9" />
+              </label>
+              <label>
+                Rua / Logradouro
+                <input type="text" id="input-edit-rua" placeholder="Nome da rua" />
+              </label>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px;">
+              <label>
+                Número
+                <input type="text" id="input-edit-numero" placeholder="Nº" />
+              </label>
+              <label>
+                Bairro
+                <input type="text" id="input-edit-bairro" placeholder="Bairro" />
+              </label>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+              <label>
+                Cidade
+                <input type="text" id="input-edit-cidade" placeholder="Cidade" />
+              </label>
+              <label>
+                Estado
+                <input type="text" id="input-edit-estado" placeholder="UF" maxlength="2" />
+              </label>
+            </div>
+            <div class="form-senha-acoes" style="margin-top: 15px;">
+              <button type="button" class="btn-cancelar" id="btn-cancelar-edit">Cancelar</button>
+              <button type="submit" class="btn-salvar">Salvar Alterações</button>
+            </div>
+          </form>
+
+          <!-- Formulário de Troca de Senha -->
           <form class="form-senha" id="form-senha" hidden>
             <h3>Trocar senha</h3>
             <label>

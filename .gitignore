@@ -7,6 +7,7 @@ Thumbs.db
 backend/app/email/email_templates/__pycache__/
 backend/app/saloes/__pycache__/
 backend/app/configuracoes_salao_dashboard/__pycache__/
+backend/app/configuracoes_user_dashboard/__pycache__/
 backend/app/criptografia_senha/__pycache__/
 backend/app/login/__pycache__/
 backend/app/email/__pycache__/

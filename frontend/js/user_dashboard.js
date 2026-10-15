@@ -1,43 +1,32 @@
-// Força a recarga da página caso o utilizador use o botão "Voltar" do navegador
+// Configuração da URL da API (suporta localhost e produção)
+const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://127.0.0.1:8000"
+    : "/api";
+
 window.addEventListener("pageshow", (event) => {
     if (event.persisted) {
         window.location.reload();
     }
 });
 
-const usuarioLogado = localStorage.getItem('usuarioLogado') ||
+const usuarioLogadoStr = localStorage.getItem('usuarioLogado') ||
     localStorage.getItem('usuario_logado') ||
     sessionStorage.getItem('usuarioLogado');
 
-if (!usuarioLogado) {
-    // Cria a estrutura do Modal Moderno
+if (!usuarioLogadoStr) {
     const modalOverlay = document.createElement('div');
     modalOverlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 99999;
-        font-family: 'Poppins', sans-serif;
-        animation: fadeIn 0.3s ease;
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(5px);
+        display: flex; justify-content: center; align-items: center; z-index: 99999;
+        font-family: 'Poppins', sans-serif; animation: fadeIn 0.3s ease;
     `;
 
     const modalBox = document.createElement('div');
     modalBox.style.cssText = `
-        background: #ffffff;
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        width: 90%;
-        max-width: 380px;
-        text-align: center;
-        transform: scale(0.9);
+        background: #ffffff; padding: 30px; border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); width: 90%; max-width: 380px;
+        text-align: center; transform: scale(0.9);
         animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     `;
 
@@ -48,107 +37,24 @@ if (!usuarioLogado) {
             Você precisa estar conectado à sua conta para aceder a esta página.
         </p>
         <button id="btn-ir-login" style="
-            background: #6c5ce7;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
+            background: #6c5ce7; color: white; border: none; width: 100%;
+            padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
         ">Fazer Login</button>
     `;
 
-    // Injeta estilos de animação na página
-    const styleSheet = document.createElement('style');
-    styleSheet.innerHTML = `
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes scaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    `;
-    document.head.appendChild(styleSheet);
-
-    modalOverlay.appendChild(modalBox);
     document.body.appendChild(modalOverlay);
+    modalOverlay.appendChild(modalBox);
 
-    // Redireciona ao clicar no botão ou automaticamente após 3 segundos
-    const redirecionar = () => {
-        window.location.href = 'login.html';
-    };
-
+    const redirecionar = () => { window.location.href = 'login.html'; };
     document.getElementById('btn-ir-login').addEventListener('click', redirecionar);
     setTimeout(redirecionar, 3000);
 
-    // Interrompe a execução do resto do script caso não esteja logado
     throw new Error("Acesso negado.");
 }
 
-const agendamentos = [
-    {
-        id: 1,
-        servico: "Corte de cabelo",
-        data: "24 de maio 2026",
-        hora: "10:00",
-        duracao: "60 min",
-        status: "agendado"
-    },
-    {
-        id: 2,
-        servico: "Corte de cabelo",
-        data: "24 de maio 2026",
-        hora: "10:00",
-        duracao: "60 min",
-        status: "pendente"
-    }
-];
-
-const historico = [
-    { id: 3, servico: "Manicure", data: "02 de maio 2026", hora: "14:00", duracao: "45 min", status: "finalizado" },
-    { id: 4, servico: "Sobrancelha", data: "18 de abril 2026", hora: "16:30", duracao: "30 min", status: "finalizado" },
-    { id: 5, servico: "Hidratação", data: "04 de abril 2026", hora: "11:00", duracao: "50 min", status: "finalizado" },
-    { id: 6, servico: "Escova", data: "21 de março 2026", hora: "09:30", duracao: "40 min", status: "finalizado" }
-];
-
-const saloes = [
-    {
-        id: 1,
-        nome: "Studio Bella Donna",
-        nota: "4.8",
-        endereco: "Avenida Sayonara nº 200",
-        servicos: "Cabelo • Unhas • Hidratação",
-        foto: "assets/img/saloes/bella.jpg",
-        favorito: false
-    },
-    {
-        id: 2,
-        nome: "Espaço Lumière",
-        nota: "4.9",
-        endereco: "Rua das Acácias nº 85",
-        servicos: "Cabelo • Escova • Coloração",
-        foto: "assets/img/saloes/lumiere.jpg",
-        favorito: false
-    },
-    {
-        id: 3,
-        nome: "Nail & Co",
-        nota: "4.7",
-        endereco: "Avenida Central nº 410",
-        servicos: "Unhas • Sobrancelha • Spa",
-        foto: "assets/img/saloes/nail.jpg",
-        favorito: false
-    },
-    {
-        id: 4,
-        nome: "Casa da Beleza",
-        nota: "4.6",
-        endereco: "Rua do Comércio nº 122",
-        servicos: "Cabelo • Barba • Hidratação",
-        foto: "assets/img/saloes/casa.jpg",
-        favorito: false
-    }
-];
-
+let meusAgendamentos = [];
+let listaSaloesParceiros = [];
 let listaCompleta = false;
 
 const iconeServico = `
@@ -167,12 +73,6 @@ const iconeCalendario = `
   <path d="M3.5 9.5h17M8 3.5v3M16 3.5v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
 </svg>`;
 
-const iconeRelogio = `
-<svg viewBox="0 0 24 24" aria-hidden="true">
-  <circle cx="12" cy="12" r="7.2" fill="none" stroke="currentColor" stroke-width="1.7"/>
-  <path d="M12 8.2V12l2.6 1.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
-</svg>`;
-
 function obterUsuario() {
     try {
         return JSON.parse(localStorage.getItem("usuario_logado") || localStorage.getItem("usuarioLogado")) || null;
@@ -181,13 +81,24 @@ function obterUsuario() {
     }
 }
 
-function chaveAvatar(usuario) {
-    const id = usuario && (usuario.email || usuario.id || usuario.nome);
-    return id ? `avatar_${id}` : "avatar_visitante";
-}
+function atualizarDadosNaTela(usuario) {
+    const nome = usuario?.nome || "visitante";
 
-function fotoSalva(usuario) {
-    return localStorage.getItem(chaveAvatar(usuario)) || (usuario && usuario.foto) || "";
+    document.getElementById("sidebar-nome").textContent = nome;
+    document.getElementById("main-nome").textContent = nome;
+    document.getElementById("agendamentos-nome").textContent = nome;
+    document.getElementById("perfil-nome").textContent = nome === "visitante" ? "—" : nome;
+    document.getElementById("perfil-email").textContent = usuario?.email || "—";
+    document.getElementById("perfil-telefone").textContent = usuario?.telefone || "—";
+
+    const partesEndereco = [
+        usuario?.rua ? `${usuario.rua}${usuario?.numero ? `, nº ${usuario.numero}` : ''}` : '',
+        usuario?.bairro,
+        usuario?.cidade,
+        usuario?.estado
+    ].filter(Boolean);
+
+    document.getElementById("perfil-endereco").textContent = partesEndereco.length ? partesEndereco.join(", ") : "—";
 }
 
 function aplicarAvatar(foto) {
@@ -220,51 +131,26 @@ function aplicarAvatar(foto) {
     if (btnRemover) btnRemover.hidden = !temFoto;
 }
 
-function salvarFoto(usuario, foto) {
-    const chave = chaveAvatar(usuario);
-    if (foto) localStorage.setItem(chave, foto);
-    else localStorage.removeItem(chave);
+async function buscarCep(cep) {
+    const cepLimpo = cep.replace(/\D/g, "");
+    if (cepLimpo.length !== 8) return;
 
-    if (!usuario) return;
-    if (foto) usuario.foto = foto;
-    else delete usuario.foto;
-    localStorage.setItem("usuario_logado", JSON.stringify(usuario));
-    localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
-}
+    try {
+        const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+        const data = await res.json();
 
-function lerFotoArquivo(arquivo) {
-    return new Promise((resolve, reject) => {
-        if (!arquivo || !arquivo.type.startsWith("image/")) {
-            reject(new Error("Escolha um arquivo de imagem."));
-            return;
+        if (!data.erro) {
+            document.getElementById("input-edit-rua").value = data.logradouro || "";
+            document.getElementById("input-edit-bairro").value = data.bairro || "";
+            document.getElementById("input-edit-cidade").value = data.localidade || "";
+            document.getElementById("input-edit-estado").value = data.uf || "";
+            document.getElementById("input-edit-numero").focus();
+        } else {
+            alert("CEP não encontrado.");
         }
-
-        const leitor = new FileReader();
-        leitor.onerror = () => reject(new Error("Não foi possível ler a imagem."));
-        leitor.onload = () => {
-            const imagem = new Image();
-            imagem.onerror = () => reject(new Error("Não foi possível ler a imagem."));
-            imagem.onload = () => {
-                const lado = 256;
-                const canvas = document.createElement("canvas");
-                canvas.width = lado;
-                canvas.height = lado;
-                const escala = Math.max(lado / imagem.width, lado / imagem.height);
-                const largura = imagem.width * escala;
-                const altura = imagem.height * escala;
-                canvas.getContext("2d").drawImage(
-                    imagem,
-                    (lado - largura) / 2,
-                    (lado - altura) / 2,
-                    largura,
-                    altura
-                );
-                resolve(canvas.toDataURL("image/jpeg", 0.85));
-            };
-            imagem.src = leitor.result;
-        };
-        leitor.readAsDataURL(arquivo);
-    });
+    } catch (err) {
+        console.error("Erro ao buscar CEP:", err);
+    }
 }
 
 function mostrarMensagemSenha(texto, erro) {
@@ -275,31 +161,36 @@ function mostrarMensagemSenha(texto, erro) {
     msg.hidden = !texto;
 }
 
-function nomeExibicao(usuario) {
-    if (!usuario) return "visitante";
-    return usuario.nome || usuario.nome_fantasia || "visitante";
-}
-
 function atualizarStats() {
     const elAgendados = document.getElementById("stat-agendamentos");
     const elConfirmados = document.getElementById("stat-confirmados");
     const elFinalizados = document.getElementById("stat-finalizados");
 
-    if (elAgendados) elAgendados.textContent = String(agendamentos.length);
-    if (elConfirmados) elConfirmados.textContent = String(agendamentos.filter((item) => item.status === "agendado").length);
-    if (elFinalizados) elFinalizados.textContent = String(historico.length);
+    const ativos = meusAgendamentos.filter(a => a.status !== "concluido" && a.status !== "recusado" && a.status !== "cancelado");
+    const confirmados = meusAgendamentos.filter(a => a.status === "confirmado");
+    const finalizados = meusAgendamentos.filter(a => a.status === "concluido");
+
+    if (elAgendados) elAgendados.textContent = String(ativos.length);
+    if (elConfirmados) elConfirmados.textContent = String(confirmados.length);
+    if (elFinalizados) elFinalizados.textContent = String(finalizados.length);
 }
 
 function acaoDoItem(item) {
-    if (item.status === "pendente") {
-        return `<button type="button" class="btn-confirmar" data-id="${item.id}">Confirmar</button>`;
-    }
+    if (item.status === "pendente" || item.status === "confirmado") {
+        const textoBadge = item.status === "pendente" ? "Pendente" : "Confirmado";
+        const estiloBadge = item.status === "pendente" ? "background: #fef3c7; color: #d97706;" : "background: #e0f2fe; color: #0284c7;";
 
-    if (item.status === "finalizado") {
-        return `<span class="badge finalizado">Finalizado</span>`;
+        return `
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="badge" style="${estiloBadge}">${textoBadge}</span>
+                <button type="button" class="btn-cancelar-ag" data-id="${item.id}" data-empresa="${item.empresa_id}" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 999px; font-size: 12px; cursor: pointer; font-weight: 500;">Cancelar</button>
+            </div>
+        `;
     }
-
-    return `<span class="badge">Agendado</span>`;
+    if (item.status === "concluido") return `<span class="badge finalizado">Finalizado</span>`;
+    if (item.status === "cancelado") return `<span class="badge" style="background: #f3f4f6; color: #6b7280;">Cancelado</span>`;
+    if (item.status === "recusado") return `<span class="badge" style="background: #fee2e2; color: #dc2626;">Recusado</span>`;
+    return `<span class="badge">${item.status}</span>`;
 }
 
 function renderItem(item) {
@@ -308,11 +199,11 @@ function renderItem(item) {
       <div class="agendamento-icone">${iconeServico}</div>
       <div class="agendamento-info">
         <div class="agendamento-meta">
-          <span>${iconeCalendario} ${item.data}</span>
-          <span>${iconeRelogio} ${item.hora}</span>
+          <span>${iconeCalendario} ${item.data_hora || item.data}</span>
+          <span>👤 ${item.profissional_nome || 'Equipe Geral'}</span>
         </div>
-        <h3>${item.servico}</h3>
-        <p>${item.duracao}</p>
+        <h3>${item.servico_nome || item.servico || 'Procedimento'}</h3>
+        <p>Salão: ${item.salao_nome || 'Estabelecimento'}</p>
       </div>
       <div class="agendamento-acao">${acaoDoItem(item)}</div>
     </article>`;
@@ -324,57 +215,46 @@ function termoBusca() {
 }
 
 function escapar(texto) {
-    return String(texto)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
+    return String(texto).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
 function filtrarPorServico(lista) {
     const termo = termoBusca();
     if (!termo) return lista.slice();
-    return lista.filter((item) => item.servico.toLowerCase().includes(termo));
+    return lista.filter((item) => {
+        const txt = `${item.servico_nome || item.servico || ''} ${item.salao_nome || ''}`.toLowerCase();
+        return txt.includes(termo);
+    });
 }
 
 function filtrarSaloes() {
     const termo = termoBusca();
-    if (!termo) return saloes.slice();
-    return saloes.filter((salao) => {
+    if (!termo) return listaSaloesParceiros.slice();
+    return listaSaloesParceiros.filter((salao) => {
         const campos = `${salao.nome} ${salao.endereco} ${salao.servicos}`.toLowerCase();
         return campos.includes(termo);
     });
 }
 
-const iconeCoracao = `
-<svg viewBox="0 0 24 24" aria-hidden="true">
-  <path d="M12 19.4l-1.1-1C6.2 14.2 3.5 11.7 3.5 8.6 3.5 6.2 5.3 4.4 7.7 4.4c1.4 0 2.7.6 3.6 1.7.9-1.1 2.2-1.7 3.6-1.7 2.4 0 4.2 1.8 4.2 4.2 0 3.1-2.7 5.6-7.4 9.8L12 19.4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-</svg>`;
-
-const iconeEstrela = `
-<svg viewBox="0 0 24 24" aria-hidden="true">
-  <path d="M12 3.6l2.2 4.6 5 .7-3.6 3.5.9 5.1L12 15.1 7.5 17.5l.9-5.1L4.8 8.9l5-.7L12 3.6z"/>
-</svg>`;
+const iconeCoracao = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.4l-1.1-1C6.2 14.2 3.5 11.7 3.5 8.6 3.5 6.2 5.3 4.4 7.7 4.4c1.4 0 2.7.6 3.6 1.7.9-1.1 2.2-1.7 3.6-1.7 2.4 0 4.2 1.8 4.2 4.2 0 3.1-2.7 5.6-7.4 9.8L12 19.4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+const iconeEstrela = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.6l2.2 4.6 5 .7-3.6 3.5.9 5.1L12 15.1 7.5 17.5l.9-5.1L4.8 8.9l5-.7L12 3.6z"/></svg>`;
 
 function renderSalao(salao) {
     const ativo = salao.favorito ? " is-ativo" : "";
-    const pressionado = salao.favorito ? "true" : "false";
-    const rotulo = salao.favorito ? "Remover dos favoritos" : "Salvar nos favoritos";
+    const imagemCapa = salao.img || "assets/img/saloes/bella.jpg";
 
     return `
     <article class="salao">
       <div class="salao-capa">
-        <img src="${escapar(salao.foto)}" alt="">
-        <button type="button" class="salao-favorito${ativo}" data-id="${salao.id}" aria-pressed="${pressionado}" aria-label="${escapar(rotulo)}: ${escapar(salao.nome)}">
-          ${iconeCoracao}
-        </button>
+        <img src="${escapar(imagemCapa)}" alt="" onerror="this.src='assets/img/saloes/bella.jpg'">
+        <button type="button" class="salao-favorito${ativo}" data-id="${salao.id}">${iconeCoracao}</button>
         <div class="salao-info">
           <div class="salao-linha">
             <h3>${escapar(salao.nome)}</h3>
-            <span class="salao-nota">${iconeEstrela} ${escapar(salao.nota)}</span>
+            <span class="salao-nota">${iconeEstrela} ${escapar(salao.avaliacao || "5.0")}</span>
           </div>
           <p>${escapar(salao.endereco)}</p>
-          <p>${escapar(salao.servicos)}</p>
+          <p>${escapar(salao.servicos || "Serviços de Beleza")}</p>
         </div>
       </div>
       <div class="salao-acoes">
@@ -388,36 +268,84 @@ function renderSaloes() {
     const lista = document.getElementById("lista-saloes");
     if (!lista) return;
     const encontrados = filtrarSaloes();
-
-    lista.innerHTML = encontrados.length
-        ? encontrados.map(renderSalao).join("")
-        : `<p class="saloes-vazio">Nenhum salão encontrado perto de você.</p>`;
+    lista.innerHTML = encontrados.length ? encontrados.map(renderSalao).join("") : `<p class="saloes-vazio">Nenhum salão encontrado.</p>`;
 }
 
 function renderListas() {
-    const proximos = filtrarPorServico(agendamentos);
+    const proximos = filtrarPorServico(meusAgendamentos.filter(a => a.status !== "concluido" && a.status !== "cancelado" && a.status !== "recusado"));
     const listaProximos = document.getElementById("lista-proximos");
     const listaAgendamentos = document.getElementById("lista-agendamentos");
-    const origem = listaCompleta ? agendamentos.concat(historico) : agendamentos;
+
+    const origem = listaCompleta ? meusAgendamentos : meusAgendamentos.filter(a => a.status !== "concluido" && a.status !== "cancelado" && a.status !== "recusado");
     const visiveis = filtrarPorServico(origem);
 
     if (listaProximos) {
-        listaProximos.innerHTML = proximos.length
-            ? proximos.map(renderItem).join("")
-            : `<p class="lista-vazia">Nenhum procedimento encontrado.</p>`;
+        listaProximos.innerHTML = proximos.length ? proximos.map(renderItem).join("") : `<p class="lista-vazia">Nenhum agendamento pendente.</p>`;
     }
 
     if (listaAgendamentos) {
-        listaAgendamentos.innerHTML = visiveis.length
-            ? visiveis.map(renderItem).join("")
-            : `<p class="lista-vazia">Nenhum procedimento encontrado.</p>`;
+        listaAgendamentos.innerHTML = visiveis.length ? visiveis.map(renderItem).join("") : `<p class="lista-vazia">Nenhum agendamento registado.</p>`;
     }
 
     const verTodosAg = document.getElementById("ver-todos-agendamentos");
-    if (verTodosAg) verTodosAg.textContent = listaCompleta ? "Ver menos" : "Ver todos >";
+    if (verTodosAg) {
+        verTodosAg.textContent = listaCompleta ? "Ver ativos >" : "Ver todos >";
+    }
 
     renderSaloes();
     atualizarStats();
+}
+
+async function carregarDadosCliente(usuario) {
+    try {
+        const nomeCliente = usuario.nome || usuario.email;
+        const resAg = await fetch(`${API_URL}/api/agendamentos/cliente?cliente_nome=${encodeURIComponent(nomeCliente)}`);
+        if (resAg.ok) meusAgendamentos = await resAg.json();
+
+        const resSal = await fetch(`${API_URL}/api/saloes`);
+        if (resSal.ok) listaSaloesParceiros = await resSal.json();
+
+        const resPerfil = await fetch(`${API_URL}/api/usuarios/perfil?email=${encodeURIComponent(usuario.email)}`);
+        if (resPerfil.ok) {
+            const dadosPerfil = await resPerfil.json();
+            Object.assign(usuario, dadosPerfil);
+            localStorage.setItem("usuario_logado", JSON.stringify(usuario));
+            localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+            atualizarDadosNaTela(usuario);
+            aplicarAvatar(usuario.foto);
+        }
+
+        renderListas();
+    } catch (e) {
+        console.error("Erro ao carregar dados:", e);
+    }
+}
+
+async function cancelarAgendamentoCliente(evento) {
+    const botao = evento.target.closest(".btn-cancelar-ag");
+    if (!botao) return;
+
+    if (!confirm("Deseja realmente cancelar este agendamento?")) return;
+
+    const agendamentoId = botao.dataset.id;
+    const empresaId = botao.dataset.empresa;
+
+    try {
+        const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoId}/status?empresa_id=${empresaId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "cancelado" })
+        });
+
+        if (res.ok) {
+            alert("Agendamento cancelado com sucesso!");
+            carregarDadosCliente(obterUsuario());
+        } else {
+            alert("Erro ao cancelar o agendamento.");
+        }
+    } catch (err) {
+        alert("Erro de conexão.");
+    }
 }
 
 function mostrarView(nome) {
@@ -434,61 +362,27 @@ function mostrarView(nome) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const usuario = obterUsuario();
-    const nome = nomeExibicao(usuario);
-
-    const elSidebarNome = document.getElementById("sidebar-nome");
-    const elMainNome = document.getElementById("main-nome");
-    const elAgendamentosNome = document.getElementById("agendamentos-nome");
-    const elPerfilNome = document.getElementById("perfil-nome");
-    const elPerfilEmail = document.getElementById("perfil-email");
-    const elPerfilTelefone = document.getElementById("perfil-telefone");
-
-    if (elSidebarNome) elSidebarNome.textContent = nome;
-    if (elMainNome) elMainNome.textContent = nome;
-    if (elAgendamentosNome) elAgendamentosNome.textContent = nome;
-    if (elPerfilNome) elPerfilNome.textContent = nome === "visitante" ? "—" : nome;
-    if (elPerfilEmail) elPerfilEmail.textContent = usuario && usuario.email ? usuario.email : "—";
-    if (elPerfilTelefone) elPerfilTelefone.textContent = usuario && usuario.telefone ? usuario.telefone : "—";
-
-    aplicarAvatar(fotoSalva(usuario));
-    renderListas();
+    let usuario = obterUsuario();
+    atualizarDadosNaTela(usuario);
+    aplicarAvatar(usuario?.foto || "");
+    carregarDadosCliente(usuario);
 
     const buscaProc = document.getElementById("busca-procedimento");
     if (buscaProc) {
         buscaProc.addEventListener("input", () => {
             const viewAtiva = document.querySelector(".view:not([hidden])");
-            if (!viewAtiva || viewAtiva.id !== "view-agendamentos") {
-                mostrarView("dashboard");
-            }
+            if (!viewAtiva || viewAtiva.id !== "view-agendamentos") mostrarView("dashboard");
             renderListas();
         });
     }
-
-    function confirmarAgendamento(evento) {
-        const botao = evento.target.closest(".btn-confirmar");
-        if (!botao) return;
-
-        const item = agendamentos.find((agendamento) => agendamento.id === Number(botao.dataset.id));
-        if (!item) return;
-
-        item.status = "agendado";
-        renderListas();
-    }
-
-    const listaProx = document.getElementById("lista-proximos");
-    if (listaProx) listaProx.addEventListener("click", confirmarAgendamento);
-
-    const listaAg = document.getElementById("lista-agendamentos");
-    if (listaAg) listaAg.addEventListener("click", confirmarAgendamento);
 
     const btnVerTodos = document.getElementById("ver-todos");
     if (btnVerTodos) {
         btnVerTodos.addEventListener("click", () => {
             if (buscaProc) buscaProc.value = "";
             listaCompleta = true;
-            renderListas();
             mostrarView("agendamentos");
+            renderListas();
         });
     }
 
@@ -500,19 +394,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const listaSal = document.getElementById("lista-saloes");
-    if (listaSal) {
-        listaSal.addEventListener("click", (evento) => {
-            const favorito = evento.target.closest(".salao-favorito");
-            if (!favorito) return;
-
-            const salao = saloes.find((item) => item.id === Number(favorito.dataset.id));
-            if (!salao) return;
-
-            salao.favorito = !salao.favorito;
-            renderSaloes();
-        });
-    }
+    document.getElementById("lista-proximos")?.addEventListener("click", cancelarAgendamentoCliente);
+    document.getElementById("lista-agendamentos")?.addEventListener("click", cancelarAgendamentoCliente);
 
     document.querySelectorAll(".menu-item").forEach((botao) => {
         botao.addEventListener("click", () => {
@@ -522,11 +405,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    const btnAvatar = document.getElementById("btn-avatar");
-    if (btnAvatar) {
-        btnAvatar.addEventListener("click", () => {
-            mostrarView("perfil");
-        });
+    document.getElementById("btn-avatar")?.addEventListener("click", () => mostrarView("perfil"));
+
+    const inputCep = document.getElementById("input-edit-cep");
+    if (inputCep) {
+        inputCep.addEventListener("blur", (e) => buscarCep(e.target.value));
     }
 
     const inputFoto = document.getElementById("input-foto");
@@ -536,21 +419,118 @@ document.addEventListener("DOMContentLoaded", () => {
             evento.target.value = "";
             if (!arquivo) return;
 
+            const formData = new FormData();
+            formData.append("file", arquivo);
+
             try {
-                const foto = await lerFotoArquivo(arquivo);
-                salvarFoto(usuario, foto);
-                aplicarAvatar(foto);
+                const res = await fetch(`${API_URL}/api/usuarios/upload-foto-perfil?email=${encodeURIComponent(usuario.email)}`, {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    usuario.foto = data.foto_url;
+                    localStorage.setItem("usuario_logado", JSON.stringify(usuario));
+                    localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+                    aplicarAvatar(usuario.foto);
+                } else {
+                    alert(data.detail || "Erro ao atualizar foto.");
+                }
             } catch (error) {
-                alert(error.message || "Não foi possível usar essa imagem.");
+                alert("Erro de conexão ao enviar foto.");
             }
         });
     }
 
     const btnRemoverFoto = document.getElementById("btn-remover-foto");
     if (btnRemoverFoto) {
-        btnRemoverFoto.addEventListener("click", () => {
-            salvarFoto(usuario, "");
-            aplicarAvatar("");
+        btnRemoverFoto.addEventListener("click", async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/usuarios/perfil`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: usuario.email, foto: "" })
+                });
+
+                if (res.ok) {
+                    delete usuario.foto;
+                    localStorage.setItem("usuario_logado", JSON.stringify(usuario));
+                    localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+                    aplicarAvatar("");
+                }
+            } catch (err) {
+                alert("Erro ao remover foto.");
+            }
+        });
+    }
+
+    const btnEditarPerfil = document.getElementById("btn-editar-perfil");
+    const formEditarPerfil = document.getElementById("form-editar-perfil");
+    const perfilDadosVisualizacao = document.getElementById("perfil-dados-visualizacao");
+    const btnCancelarEdit = document.getElementById("btn-cancelar-edit");
+
+    if (btnEditarPerfil && formEditarPerfil) {
+        btnEditarPerfil.addEventListener("click", () => {
+            document.getElementById("input-edit-nome").value = usuario.nome || "";
+            document.getElementById("input-edit-telefone").value = usuario.telefone || "";
+            document.getElementById("input-edit-cep").value = usuario.cep || "";
+            document.getElementById("input-edit-rua").value = usuario.rua || "";
+            document.getElementById("input-edit-numero").value = usuario.numero || "";
+            document.getElementById("input-edit-bairro").value = usuario.bairro || "";
+            document.getElementById("input-edit-cidade").value = usuario.cidade || "";
+            document.getElementById("input-edit-estado").value = usuario.estado || "";
+
+            perfilDadosVisualizacao.hidden = true;
+            formEditarPerfil.hidden = false;
+        });
+    }
+
+    if (btnCancelarEdit && formEditarPerfil) {
+        btnCancelarEdit.addEventListener("click", () => {
+            formEditarPerfil.hidden = true;
+            perfilDadosVisualizacao.hidden = false;
+        });
+    }
+
+    if (formEditarPerfil) {
+        formEditarPerfil.addEventListener("submit", async (evento) => {
+            evento.preventDefault();
+            const dadosAtualizados = {
+                email: usuario.email,
+                nome: document.getElementById("input-edit-nome").value.trim(),
+                telefone: document.getElementById("input-edit-telefone").value.trim(),
+                cep: document.getElementById("input-edit-cep").value.trim(),
+                rua: document.getElementById("input-edit-rua").value.trim(),
+                numero: document.getElementById("input-edit-numero").value.trim(),
+                bairro: document.getElementById("input-edit-bairro").value.trim(),
+                cidade: document.getElementById("input-edit-cidade").value.trim(),
+                estado: document.getElementById("input-edit-estado").value.trim()
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/api/usuarios/perfil`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dadosAtualizados)
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    Object.assign(usuario, data.usuario);
+                    localStorage.setItem("usuario_logado", JSON.stringify(usuario));
+                    localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
+
+                    atualizarDadosNaTela(usuario);
+                    formEditarPerfil.hidden = true;
+                    perfilDadosVisualizacao.hidden = false;
+                    alert("Perfil atualizado com sucesso!");
+                } else {
+                    alert(data.detail || "Erro ao atualizar perfil.");
+                }
+            } catch (err) {
+                alert("Erro de conexão.");
+            }
         });
     }
 
@@ -560,22 +540,18 @@ document.addEventListener("DOMContentLoaded", () => {
         btnTrocarSenha.addEventListener("click", () => {
             formSenha.hidden = false;
             mostrarMensagemSenha("");
-            const senhaAtual = document.getElementById("senha-atual");
-            if (senhaAtual) senhaAtual.focus();
+            document.getElementById("senha-atual")?.focus();
         });
     }
 
-    const btnCancelarSenha = document.getElementById("btn-cancelar-senha");
-    if (btnCancelarSenha && formSenha) {
-        btnCancelarSenha.addEventListener("click", () => {
-            formSenha.reset();
-            formSenha.hidden = true;
-            mostrarMensagemSenha("");
-        });
-    }
+    document.getElementById("btn-cancelar-senha")?.addEventListener("click", () => {
+        formSenha.reset();
+        formSenha.hidden = true;
+        mostrarMensagemSenha("");
+    });
 
     if (formSenha) {
-        formSenha.addEventListener("submit", (evento) => {
+        formSenha.addEventListener("submit", async (evento) => {
             evento.preventDefault();
             const atual = document.getElementById("senha-atual").value;
             const nova = document.getElementById("senha-nova").value;
@@ -585,45 +561,35 @@ document.addEventListener("DOMContentLoaded", () => {
                 mostrarMensagemSenha("A nova senha precisa ter pelo menos 6 caracteres.", true);
                 return;
             }
-
             if (nova !== confirma) {
-                mostrarMensagemSenha("A confirmação não é igual à nova senha.", true);
+                mostrarMensagemSenha("A confirmação não confere com a nova senha.", true);
                 return;
             }
 
-            if (nova === atual) {
-                mostrarMensagemSenha("Escolha uma senha diferente da atual.", true);
-                return;
-            }
+            try {
+                const res = await fetch(`${API_URL}/api/usuarios/perfil`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: usuario.email, senha_atual: atual, nova_senha: nova })
+                });
 
-            if (!usuario) {
-                mostrarMensagemSenha("Entre na sua conta para trocar a senha.", true);
-                return;
+                const data = await res.json();
+                if (res.ok) {
+                    formSenha.reset();
+                    formSenha.hidden = true;
+                    mostrarMensagemSenha("Senha atualizada com sucesso!");
+                } else {
+                    mostrarMensagemSenha(data.detail || "Erro ao atualizar senha.", true);
+                }
+            } catch (err) {
+                mostrarMensagemSenha("Erro de conexão.", true);
             }
-
-            if (usuario.senha && usuario.senha !== atual) {
-                mostrarMensagemSenha("A senha atual não confere.", true);
-                return;
-            }
-
-            usuario.senha = nova;
-            localStorage.setItem("usuario_logado", JSON.stringify(usuario));
-            localStorage.setItem("usuarioLogado", JSON.stringify(usuario));
-            formSenha.reset();
-            formSenha.hidden = true;
-            mostrarMensagemSenha("Senha atualizada.");
         });
     }
 
-    const btnSair = document.getElementById("btn-sair");
-    if (btnSair) {
-        btnSair.addEventListener("click", () => {
-            // Limpa todas as chaves possíveis de sessão para evitar cache de login
-            localStorage.removeItem("token");
-            localStorage.removeItem("usuario_logado");
-            localStorage.removeItem("usuarioLogado");
-            sessionStorage.removeItem("usuarioLogado");
-            window.location.href = "login.html";
-        });
-    }
+    document.getElementById("btn-sair")?.addEventListener("click", () => {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "login.html";
+    });
 });
