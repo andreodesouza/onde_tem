@@ -48,9 +48,22 @@ def obter_perfil_usuario(email: str, db: Session = Depends(get_db)):
         "foto": perfil.foto if perfil else ""
     }
 
+class UsuarioPerfilUpdateSchema(BaseModel):
+    email: str  # <--- Inclui o e-mail no corpo
+    nome: Optional[str] = None
+    telefone: Optional[str] = None
+    cep: Optional[str] = None
+    rua: Optional[str] = None
+    numero: Optional[str] = None
+    bairro: Optional[str] = None
+    cidade: Optional[str] = None
+    estado: Optional[str] = None
+    senha_atual: Optional[str] = None
+    nova_senha: Optional[str] = None
+
 @router.put("/perfil")
-def atualizar_perfil_usuario(email: str, dados: UsuarioPerfilUpdateSchema, db: Session = Depends(get_db)):
-    usuario = db.query(UsuarioModel).filter(UsuarioModel.email == email).first()
+def atualizar_perfil_usuario(dados: UsuarioPerfilUpdateSchema, db: Session = Depends(get_db)):
+    usuario = db.query(UsuarioModel).filter(UsuarioModel.email == dados.email).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Utilizador não encontrado.")
 
@@ -61,13 +74,11 @@ def atualizar_perfil_usuario(email: str, dados: UsuarioPerfilUpdateSchema, db: S
 
     dados_dict = dados.dict(exclude_unset=True)
     
-    # Lógica de alteração de senha
     if "nova_senha" in dados_dict and dados_dict["nova_senha"]:
         if usuario.senha and usuario.senha != dados_dict.get("senha_atual"):
             raise HTTPException(status_code=400, detail="A senha atual não confere.")
         usuario.senha = dados_dict["nova_senha"]
     
-    # Atualiza o nome na tabela principal de utilizadores se fornecido
     if "nome" in dados_dict and dados_dict["nome"]:
         usuario.nome = dados_dict["nome"]
         
@@ -75,9 +86,8 @@ def atualizar_perfil_usuario(email: str, dados: UsuarioPerfilUpdateSchema, db: S
         if hasattr(usuario, "telefone"):
             usuario.telefone = dados_dict["telefone"]
 
-    # Atualiza os campos na tabela dedicada de perfil
     for chave, valor in dados_dict.items():
-        if chave not in ["senha_atual", "nova_senha"]:
+        if chave not in ["email", "senha_atual", "nova_senha"]:
             setattr(perfil, chave, valor)
 
     db.commit()
