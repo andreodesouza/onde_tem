@@ -17,9 +17,10 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
 
-@app.get("/")
-def read_root():
-    return {"message": "API do Onde Tem está online!"}
+@app.get("/health", methods=["GET", "HEAD"])
+@app.head("/health")
+def health_check():
+    return {"status": "ok"}
 
 
 app.include_router(configuracoes_router)  
