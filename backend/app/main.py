@@ -11,14 +11,16 @@ from.configuracoes_salao_dashboard.agenda import router as agenda_router
 from .configuracoes_salao_dashboard.agendamentos import router as agendamentos_router
 from .configuracoes_user_dashboard import configuracoes_user_dashboard as cfg_user # Ou o nome do seu import
 
-@app.get("/")
-def read_root():
-    return {"message": "API do Onde Tem está online!"}
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
+
+@app.get("/")
+def read_root():
+    return {"message": "API do Onde Tem está online!"}
+
 
 app.include_router(configuracoes_router)  
 
