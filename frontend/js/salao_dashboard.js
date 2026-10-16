@@ -464,7 +464,6 @@ function atualizarSelectProfissionais(profissionais) {
 
     const selectAgenda = document.getElementById('input-agenda-profissional');
     if (selectAgenda) {
-        selectAgenda.innerHTML = '<option value="">Todos / Equipe Geral</option>';
         if (profissionais) {
             profissionais.forEach(prof => {
                 const opt = document.createElement('option');
