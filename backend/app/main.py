@@ -17,7 +17,7 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
 
-@app.get("/health", methods=["GET", "HEAD"])
+@app.get("/health")
 @app.head("/health")
 def health_check():
     return {"status": "ok"}
