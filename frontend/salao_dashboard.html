@@ -144,7 +144,7 @@
                             Responsável</label>
                         <select id="input-agenda-profissional"
                             style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px; background: #fff;">
-                            <option value="">Equipe Geral / Sem Profissional Específica</option>
+
                         </select>
                     </div>
                     <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
@@ -173,6 +173,8 @@
             <div style="padding: 1.5rem 1.8rem; border-bottom: 1px solid var(--border-light);">
                 <form id="form-servico" onsubmit="salvarServico(event)"
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
+
+                    <!-- Campos do formulário -->
                     <div>
                         <label
                             style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Nome
@@ -211,9 +213,15 @@
                             placeholder="Ex: Clareamento suave com nutrição profunda dos fios."
                             style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px;">
                     </div>
+
+                    <!-- Campo oculto para guardar o ID do serviço selecionado para edição/remoção -->
+                    <input type="hidden" id="serv-id">
+
+                    <!-- Botões lado a lado -->
                     <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
-                        <button type="submit" class="btn-login-profile" style="height: 40px; padding: 0 1.5rem;">+
-                            Cadastrar Serviço</button>
+                        <button type="submit" class="btn-login-profile" style="height: 40px; padding: 0 1.5rem;">
+                            + Cadastrar Serviço
+                        </button>
                     </div>
                 </form>
             </div>
@@ -227,9 +235,12 @@
                             <th>Preço</th>
                             <th>Duração</th>
                             <th>Especialista</th>
+                            <th style="text-align: right;">Ações</th> <!-- Adicionado -->
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody id="tabela-servicos-corpo">
+                        <!-- Os dados entram aqui via JavaScript -->
+                    </tbody>
                 </table>
             </div>
         </section>

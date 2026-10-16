@@ -360,27 +360,35 @@ async function carregarServicos() {
     } catch {
         renderizarTabelaServicos([]);
     }
+
+
 }
 
 function renderizarTabelaServicos(lista) {
-    const tbody = document.querySelector('#tabela-servicos tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+    const tbody = document.getElementById('tabela-servicos-corpo');
+    tbody.innerHTML = ''; // Limpa a tabela antes de preencher
 
-    if (!lista || lista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 2rem;">Nenhum serviço cadastrado.</td></tr>`;
+    if (lista.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">Nenhum serviço cadastrado.</td></tr>`;
         return;
     }
 
-    lista.forEach(serv => {
+    lista.forEach(servico => {
         const tr = document.createElement('tr');
+
         tr.innerHTML = `
-            <td><strong>${serv.nome}</strong></td>
-            <td>${serv.descricao || 'Sem descrição'}</td>
-            <td>R$ ${parseFloat(serv.preco).toFixed(2)}</td>
-            <td>${serv.duracao_minutos} min</td>
-            <td>${serv.profissional_nome || 'Equipe Geral'}</td>
+            <td><strong>${servico.nome}</strong></td>
+            <td>${servico.descricao || '-'}</td>
+            <td>R$ ${servico.preco.toFixed(2)}</td>
+            <td>${servico.duracao_minutos} min</td>
+            <td>${servico.profissional_nome || 'Geral'}</td>
+            <td style="text-align: right;">
+                <button type="button" onclick="removerServico(${servico.id})" style="background-color: #d9534f; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                    Excluir
+                </button>
+            </td>
         `;
+
         tbody.appendChild(tr);
     });
 }
@@ -388,7 +396,7 @@ function renderizarTabelaServicos(lista) {
 function atualizarSelectProfissionais(profissionais) {
     const selectServico = document.getElementById('serv-profissional');
     if (selectServico) {
-        selectServico.innerHTML = '<option value="">Equipe Geral / Sem Profissional Específica</option>';
+
         if (profissionais) {
             profissionais.forEach(prof => {
                 const opt = document.createElement('option');
@@ -401,7 +409,7 @@ function atualizarSelectProfissionais(profissionais) {
 
     const selectAgenda = document.getElementById('input-agenda-profissional');
     if (selectAgenda) {
-        selectAgenda.innerHTML = '<option value="">Equipe Geral / Sem Profissional Específica</option>';
+
         if (profissionais) {
             profissionais.forEach(prof => {
                 const opt = document.createElement('option');
@@ -438,6 +446,29 @@ async function salvarServico(event) {
             alert(`Erro: ${erro.detail || 'Não foi possível cadastrar o serviço.'}`);
         }
     } catch {
+        alert('Erro ao ligar ao servidor.');
+    }
+}
+
+async function removerServico(servicoId) {
+    if (!confirm('Tem certeza que deseja remover este serviço?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/servicos/${servicoId}?empresa_id=${EMPRESA_ID}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Serviço removido com sucesso!');
+            // CHAMA A FUNÇÃO DE CARREGAR NOVAMENTE PARA ATUALIZAR A TABELA NA TELA
+            carregarServicos();
+        } else {
+            const erro = await response.json();
+            alert(`Erro: ${erro.detail || 'Não foi possível remover o serviço.'}`);
+        }
+    } catch (error) {
         alert('Erro ao ligar ao servidor.');
     }
 }

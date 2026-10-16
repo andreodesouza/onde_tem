@@ -42,6 +42,7 @@ class ProfissionalModel(Base):
     nome = Column(String, nullable=False)
     especialidade = Column(String, nullable=False)
     telefone = Column(String, nullable=True)
+    ativo = Column(Boolean, default=True, nullable=False)
 
 class ServicoModel(Base):
     __tablename__ = "servicos"
@@ -53,6 +54,7 @@ class ServicoModel(Base):
     duracao_minutos = Column(Integer, nullable=False)
     profissional_id = Column(Integer, ForeignKey("profissionais.id"), nullable=True)
     descricao = Column(Text, nullable=True)
+    ativo = Column(Boolean, default=True, nullable=False)
 
 class AgendaHorarioModel(Base):
     __tablename__ = "agenda_horarios"

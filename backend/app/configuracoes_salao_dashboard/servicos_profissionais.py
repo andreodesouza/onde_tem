@@ -43,6 +43,11 @@ def criar_profissional(empresa_id: int, dados: ProfissionalCreate, db: Session =
 @router.get("/servicos")
 def listar_servicos(empresa_id: int, db: Session = Depends(get_db)):
     servicos = db.query(ServicoModel).filter(ServicoModel.empresa_id == empresa_id).all()
+    servicos = db.query(ServicoModel).filter(
+    ServicoModel.empresa_id == empresa_id,
+    ServicoModel.ativo == True
+).all()
+    
     resultado = []
     for s in servicos:
         prof = db.query(ProfissionalModel).filter(ProfissionalModel.id == s.profissional_id).first() if s.profissional_id else None
@@ -75,3 +80,20 @@ def criar_servico(empresa_id: int, dados: ServicoCreate, db: Session = Depends(g
     db.commit()
     db.refresh(novo_serv)
     return {"mensagem": "Serviço cadastrado com sucesso!", "id": novo_serv.id}
+
+from sqlalchemy.exc import IntegrityError
+
+@router.delete("/servicos/{servico_id}")
+def desativar_servico(servico_id: int, empresa_id: int, db: Session = Depends(get_db)):
+    servico = db.query(ServicoModel).filter(
+        ServicoModel.id == servico_id,
+        ServicoModel.empresa_id == empresa_id
+    ).first()
+
+    if not servico:
+        raise HTTPException(status_code=404, detail="Serviço não encontrado.")
+
+    servico.ativo = False
+    db.commit()
+
+    return {"mensagem": "Serviço removido com sucesso!"}
