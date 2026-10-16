@@ -21,7 +21,11 @@ class ServicoCreate(BaseModel):
 
 @router.get("/profissionais")
 def listar_profissionais(empresa_id: int, db: Session = Depends(get_db)):
-    return db.query(ProfissionalModel).filter(ProfissionalModel.empresa_id == empresa_id).all()
+    profissionais = db.query(ProfissionalModel).filter(
+        ProfissionalModel.empresa_id == empresa_id,
+        ProfissionalModel.ativo == True
+    ).all()
+    return profissionais
 
 @router.post("/profissionais")
 def criar_profissional(empresa_id: int, dados: ProfissionalCreate, db: Session = Depends(get_db)):
@@ -39,6 +43,23 @@ def criar_profissional(empresa_id: int, dados: ProfissionalCreate, db: Session =
     db.commit()
     db.refresh(nova_prof)
     return {"mensagem": "Profissional cadastrada com sucesso!", "id": nova_prof.id}
+
+@router.delete("/profissionais/{profissional_id}")
+def desativar_profissional(profissional_id: int, empresa_id: int, db: Session = Depends(get_db)):
+    profissional = db.query(ProfissionalModel).filter(
+        ProfissionalModel.id == profissional_id,
+        ProfissionalModel.empresa_id == empresa_id
+    ).first()
+
+    if not profissional:
+        raise HTTPException(status_code=404, detail="Profissional não encontrado.")
+
+    profissional.ativo = False
+    db.commit()
+
+    return {"mensagem": "Profissional removida com sucesso!"}
+
+
 
 @router.get("/servicos")
 def listar_servicos(empresa_id: int, db: Session = Depends(get_db)):

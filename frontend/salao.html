@@ -45,7 +45,17 @@
           <h1 id="salao-nome">Carregando estabelecimento...</h1>
           <p id="salao-especialidades" class="salao-tags"></p>
           <p id="salao-endereco" class="salao-localizacao">📍 Carregando localização...</p>
-          <p id="salao-horario" class="salao-horario">🕒 Carregando horários...</p>
+
+          <!-- Horários Organizados em Grelha Compacta -->
+          <div id="salao-horarios-container" class="salao-horarios-box"
+            style="margin-top: 10px; margin-bottom: 12px; font-size: 0.8rem; color: #4a5568; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <span style="font-weight: 600; display: block; margin-bottom: 6px; color: #2d3748;">🕒 Horário de
+              Atendimento:</span>
+            <div id="salao-horario-lista"
+              style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 4px 8px;">
+              <span>Carregando horários...</span>
+            </div>
+          </div>
         </div>
 
         <div class="salao-info-actions">

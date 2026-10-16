@@ -174,7 +174,32 @@ function renderizarDetalhes(salao) {
   document.getElementById("salao-banner").src = salao.img;
   document.getElementById("salao-especialidades").innerText = salao.servicos;
   document.getElementById("salao-endereco").innerText = `📍 ${salao.endereco || "Endereço não informado"}`;
-  document.getElementById("salao-horario").innerText = `🕒 ${salao.horario || "Horário a consultar"}`;
+
+  // --- NOVO TRATAMENTO DE HORÁRIOS EM ETIQUETAS ---
+  const containerHorarioLista = document.getElementById("salao-horario-lista");
+  if (containerHorarioLista) {
+    containerHorarioLista.innerHTML = "";
+    const horarioTexto = salao.horario || "Horário a consultar";
+
+    // Se vier no formato novo separado por " | "
+    if (horarioTexto.includes("|")) {
+      const diasArray = horarioTexto.split("|");
+      diasArray.forEach(item => {
+        const span = document.createElement("span");
+        span.style.cssText = "background: #f7fafc; padding: 3px 8px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 0.8rem; color: #4a5568;";
+        span.textContent = item.trim();
+        containerHorarioLista.appendChild(span);
+      });
+    } else {
+      // Fallback caso seja um texto simples antigo
+      const span = document.createElement("span");
+      span.style.cssText = "font-size: 0.85rem; color: #4a5568;";
+      span.textContent = horarioTexto;
+      containerHorarioLista.appendChild(span);
+    }
+  }
+  // ---------------------------------------------
+
   document.getElementById("salao-rating").innerText = salao.avaliacao?.toFixed(1) || "5.0";
   document.getElementById("salao-reviews").innerText = `(${salao.total_avaliacoes || 0})`;
 

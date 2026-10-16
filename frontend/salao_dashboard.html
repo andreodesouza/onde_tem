@@ -48,9 +48,7 @@
                 <h2 id="salao-nome-fantasia">A carregar...</h2>
                 <p id="salao-detalhes">Estabelecimento parceiro Onde Tem?</p>
             </div>
-            <div class="profile-badge" id="salao-avaliacao" style="display: none;">
-                <!-- Preenchido via JS se houver avaliações -->
-            </div>
+            <div class="profile-badge" id="salao-avaliacao" style="display: none;"></div>
         </section>
 
         <!-- Cards de Métricas -->
@@ -133,9 +131,11 @@
                             style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Intervalo</label>
                         <select id="input-agenda-intervalo"
                             style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px; background: #fff;">
+                            <option value="15">15 minutos</option>
                             <option value="30">30 minutos</option>
                             <option value="45">45 minutos</option>
                             <option value="60">1 hora</option>
+                            <option value="120">2 horas</option>
                         </select>
                     </div>
                     <div>
@@ -143,9 +143,7 @@
                             style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Profissional
                             Responsável</label>
                         <select id="input-agenda-profissional"
-                            style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px; background: #fff;">
-
-                        </select>
+                            style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px; background: #fff;"></select>
                     </div>
                     <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
                         <button type="button" onclick="gerarHorariosNaAgenda()" class="btn-login-profile"
@@ -173,8 +171,6 @@
             <div style="padding: 1.5rem 1.8rem; border-bottom: 1px solid var(--border-light);">
                 <form id="form-servico" onsubmit="salvarServico(event)"
                     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: flex-end;">
-
-                    <!-- Campos do formulário -->
                     <div>
                         <label
                             style="display:block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;">Nome
@@ -213,15 +209,10 @@
                             placeholder="Ex: Clareamento suave com nutrição profunda dos fios."
                             style="width: 100%; padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px;">
                     </div>
-
-                    <!-- Campo oculto para guardar o ID do serviço selecionado para edição/remoção -->
                     <input type="hidden" id="serv-id">
-
-                    <!-- Botões lado a lado -->
                     <div style="grid-column: 1 / -1; display: flex; justify-content: flex-end;">
-                        <button type="submit" class="btn-login-profile" style="height: 40px; padding: 0 1.5rem;">
-                            + Cadastrar Serviço
-                        </button>
+                        <button type="submit" class="btn-login-profile" style="height: 40px; padding: 0 1.5rem;">+
+                            Cadastrar Serviço</button>
                     </div>
                 </form>
             </div>
@@ -235,12 +226,10 @@
                             <th>Preço</th>
                             <th>Duração</th>
                             <th>Especialista</th>
-                            <th style="text-align: right;">Ações</th> <!-- Adicionado -->
+                            <th style="text-align: right;">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-servicos-corpo">
-                        <!-- Os dados entram aqui via JavaScript -->
-                    </tbody>
+                    <tbody id="tabela-servicos-corpo"></tbody>
                 </table>
             </div>
         </section>
@@ -288,6 +277,7 @@
                             <th>Nome</th>
                             <th>Especialidade</th>
                             <th>Contato</th>
+                            <th>Ação</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -350,7 +340,7 @@
                                     type="checkbox" name="categorias" value="Sobrancelhas"> Sobrancelhas</label>
                             <label
                                 style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;"><input
-                                    type="checkbox" name="categorias" value="Maquilhagem"> Maquilhagem</label>
+                                    type="checkbox" name="categorias" value="Maquiagem"> Maquiagem</label>
                             <label
                                 style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer;"><input
                                     type="checkbox" name="categorias" value="Depilação"> Depilação</label>
@@ -370,7 +360,7 @@
                         <input type="hidden" id="conf-lat">
                         <input type="hidden" id="conf-lng">
                         <div id="mapa-config-container"
-                            style="margin-top: 10px; width: 100%; height: 220px; border-radius: 10px; border: 1px solid var(--border-light); display: none; z-index: 1;">
+                            style="margin-top: 10px; width: 100%; height: 220px; border-radius: 10px; border: 1px solid var(--border-light); z-index: 1;">
                         </div>
                     </div>
 
@@ -404,24 +394,160 @@
                             </div>
                         </div>
 
-                        <div style="display: flex; flex-direction: column; gap: 8px;">
-                            <label style="font-size: 0.8rem; color: var(--text-secondary);">Horário de
-                                Atendimento</label>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <select id="conf-dias-semana"
-                                    style="padding: 0.6rem; border: 1px solid var(--border-light); border-radius: 8px; background: #fff; font-size: 0.85rem;">
-                                    <option value="Segunda a Sábado">Segunda a Sábado</option>
-                                    <option value="Segunda a Sexta">Segunda a Sexta</option>
-                                    <option value="Terça a Domingo">Terça a Domingo</option>
-                                    <option value="Todos os dias">Todos os dias</option>
-                                </select>
-                                <div style="display: flex; align-items: center; gap: 4px;">
-                                    <input type="time" id="conf-hora-inicio" value="09:00"
-                                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem;">
-                                    <span style="color: var(--text-secondary);">às</span>
-                                    <input type="time" id="conf-hora-fim" value="19:00"
-                                        style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.85rem;">
+                        <!-- Horários Flexíveis por Dia da Semana -->
+                        <div style="grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Horário de
+                                Funcionamento Semanal</label>
+
+                            <div id="container-dias-semana"
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px;">
+
+                                <!-- Segunda -->
+                                <div class="dia-config-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light); gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; min-width: 100px;">
+                                        <input type="checkbox" id="ativo-segunda" checked
+                                            onchange="toggleDiaSemana('segunda')"
+                                            style="width: 15px; height: 15px; accent-color: #482868; cursor: pointer;">
+                                        <label for="ativo-segunda"
+                                            style="font-size: 0.8rem; font-weight: 600; color: #2d3748; cursor: pointer;">Segunda</label>
+                                    </div>
+                                    <div id="horarios-segunda" style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="time" id="inicio-segunda" value="09:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">às</span>
+                                        <input type="time" id="fim-segunda" value="19:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                    </div>
+                                    <span id="fechado-segunda"
+                                        style="display: none; font-size: 0.8rem; color: #e53e3e; font-weight: 500;">Fechado</span>
                                 </div>
+
+                                <!-- Terça -->
+                                <div class="dia-config-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light); gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; min-width: 100px;">
+                                        <input type="checkbox" id="ativo-terca" checked
+                                            onchange="toggleDiaSemana('terca')"
+                                            style="width: 15px; height: 15px; accent-color: #482868; cursor: pointer;">
+                                        <label for="ativo-terca"
+                                            style="font-size: 0.8rem; font-weight: 600; color: #2d3748; cursor: pointer;">Terça</label>
+                                    </div>
+                                    <div id="horarios-terca" style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="time" id="inicio-terca" value="09:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">às</span>
+                                        <input type="time" id="fim-terca" value="19:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                    </div>
+                                    <span id="fechado-terca"
+                                        style="display: none; font-size: 0.8rem; color: #e53e3e; font-weight: 500;">Fechado</span>
+                                </div>
+
+                                <!-- Quarta -->
+                                <div class="dia-config-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light); gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; min-width: 100px;">
+                                        <input type="checkbox" id="ativo-quarta" checked
+                                            onchange="toggleDiaSemana('quarta')"
+                                            style="width: 15px; height: 15px; accent-color: #482868; cursor: pointer;">
+                                        <label for="ativo-quarta"
+                                            style="font-size: 0.8rem; font-weight: 600; color: #2d3748; cursor: pointer;">Quarta</label>
+                                    </div>
+                                    <div id="horarios-quarta" style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="time" id="inicio-quarta" value="09:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">às</span>
+                                        <input type="time" id="fim-quarta" value="19:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                    </div>
+                                    <span id="fechado-quarta"
+                                        style="display: none; font-size: 0.8rem; color: #e53e3e; font-weight: 500;">Fechado</span>
+                                </div>
+
+                                <!-- Quinta -->
+                                <div class="dia-config-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light); gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; min-width: 100px;">
+                                        <input type="checkbox" id="ativo-quinta" checked
+                                            onchange="toggleDiaSemana('quinta')"
+                                            style="width: 15px; height: 15px; accent-color: #482868; cursor: pointer;">
+                                        <label for="ativo-quinta"
+                                            style="font-size: 0.8rem; font-weight: 600; color: #2d3748; cursor: pointer;">Quinta</label>
+                                    </div>
+                                    <div id="horarios-quinta" style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="time" id="inicio-quinta" value="09:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">às</span>
+                                        <input type="time" id="fim-quinta" value="19:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                    </div>
+                                    <span id="fechado-quinta"
+                                        style="display: none; font-size: 0.8rem; color: #e53e3e; font-weight: 500;">Fechado</span>
+                                </div>
+
+                                <!-- Sexta -->
+                                <div class="dia-config-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light); gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; min-width: 100px;">
+                                        <input type="checkbox" id="ativo-sexta" checked
+                                            onchange="toggleDiaSemana('sexta')"
+                                            style="width: 15px; height: 15px; accent-color: #482868; cursor: pointer;">
+                                        <label for="ativo-sexta"
+                                            style="font-size: 0.8rem; font-weight: 600; color: #2d3748; cursor: pointer;">Sexta</label>
+                                    </div>
+                                    <div id="horarios-sexta" style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="time" id="inicio-sexta" value="09:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">às</span>
+                                        <input type="time" id="fim-sexta" value="19:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                    </div>
+                                    <span id="fechado-sexta"
+                                        style="display: none; font-size: 0.8rem; color: #e53e3e; font-weight: 500;">Fechado</span>
+                                </div>
+
+                                <!-- Sábado -->
+                                <div class="dia-config-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light); gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; min-width: 100px;">
+                                        <input type="checkbox" id="ativo-sabado" checked
+                                            onchange="toggleDiaSemana('sabado')"
+                                            style="width: 15px; height: 15px; accent-color: #482868; cursor: pointer;">
+                                        <label for="ativo-sabado"
+                                            style="font-size: 0.8rem; font-weight: 600; color: #2d3748; cursor: pointer;">Sábado</label>
+                                    </div>
+                                    <div id="horarios-sabado" style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="time" id="inicio-sabado" value="09:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">às</span>
+                                        <input type="time" id="fim-sabado" value="18:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                    </div>
+                                    <span id="fechado-sabado"
+                                        style="display: none; font-size: 0.8rem; color: #e53e3e; font-weight: 500;">Fechado</span>
+                                </div>
+
+                                <!-- Domingo -->
+                                <div class="dia-config-row"
+                                    style="display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-light); gap: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 8px; min-width: 100px;">
+                                        <input type="checkbox" id="ativo-domingo" onchange="toggleDiaSemana('domingo')"
+                                            style="width: 15px; height: 15px; accent-color: #482868; cursor: pointer;">
+                                        <label for="ativo-domingo"
+                                            style="font-size: 0.8rem; font-weight: 600; color: #2d3748; cursor: pointer;">Domingo</label>
+                                    </div>
+                                    <div id="horarios-domingo" style="display: none; align-items: center; gap: 6px;">
+                                        <input type="time" id="inicio-domingo" value="09:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">às</span>
+                                        <input type="time" id="fim-domingo" value="14:00"
+                                            style="padding: 0.3rem; border: 1px solid var(--border-light); border-radius: 6px; font-size: 0.8rem;">
+                                    </div>
+                                    <span id="fechado-domingo"
+                                        style="display: block; font-size: 0.8rem; color: #e53e3e; font-weight: 500;">Fechado</span>
+                                </div>
+
                             </div>
                         </div>
                     </div>

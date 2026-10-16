@@ -96,8 +96,39 @@ function mostrarSessao(sessaoId, btnElement) {
         btnElement.classList.add('active');
     }
 
-    if (sessaoId === 'configuracoes' && typeof mapaConfig !== 'undefined' && mapaConfig) {
-        setTimeout(() => { mapaConfig.invalidateSize(); }, 200);
+    if (sessaoId === 'configuracoes') {
+        const containerMapaDiv = document.getElementById('mapa-config-container');
+        if (containerMapaDiv) {
+            containerMapaDiv.style.display = 'block';
+        }
+
+        // Se o mapa já existe, recalcula o tamanho. Se não, inicializa com uma coordenada padrão (ex: Saquarema -22.919, -42.503)
+        setTimeout(() => {
+            if (typeof mapaConfig !== 'undefined' && mapaConfig) {
+                mapaConfig.invalidateSize();
+            } else {
+                const latInput = document.getElementById('conf-lat').value;
+                const lngInput = document.getElementById('conf-lng').value;
+                const lat = latInput ? parseFloat(latInput) : -22.9190;
+                const lng = lngInput ? parseFloat(lngInput) : -42.5035;
+                inicializarOuAtualizarMapa(lat, lng);
+            }
+        }, 250);
+    }
+}
+
+// --- CONTROLO DOS DIAS DA SEMANA ---
+function toggleDiaSemana(dia) {
+    const checkbox = document.getElementById(`ativo-${dia}`);
+    const horariosDiv = document.getElementById(`horarios-${dia}`);
+    const fechadoTexto = document.getElementById(`fechado-${dia}`);
+
+    if (checkbox.checked) {
+        horariosDiv.style.display = 'flex';
+        fechadoTexto.style.display = 'none';
+    } else {
+        horariosDiv.style.display = 'none';
+        fechadoTexto.style.display = 'block';
     }
 }
 
@@ -303,7 +334,7 @@ function renderizarTabelaProfissionais(lista) {
     tbody.innerHTML = '';
 
     if (!lista || lista.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-secondary); padding: 2rem;">Nenhuma profissional cadastrada.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-secondary); padding: 2rem;">Nenhuma profissional cadastrada.</td></tr>`;
         document.getElementById('total-profissionais').textContent = 0;
         atualizarSelectProfissionais([]);
         return;
@@ -315,6 +346,11 @@ function renderizarTabelaProfissionais(lista) {
             <td><strong>${prof.nome}</strong></td>
             <td>${prof.especialidade}</td>
             <td>${prof.telefone || 'Não informado'}</td>
+            <td style="text-align: right;">
+                <button type="button" onclick="removerProfissional(${prof.id})" style="background-color: #d9534f; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                    Excluir
+                </button>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -350,6 +386,28 @@ async function salvarProfissional(event) {
     }
 }
 
+async function removerProfissional(profissionalId) {
+    if (!confirm('Tem certeza que deseja remover esta profissional?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/api/profissionais/${profissionalId}?empresa_id=${EMPRESA_ID}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Profissional removida com sucesso!');
+            carregarProfissionais();
+        } else {
+            const erro = await response.json();
+            alert(`Erro: ${erro.detail || 'Não foi possível remover o serviço.'}`);
+        }
+    } catch (error) {
+        alert('Erro ao ligar ao servidor.');
+    }
+}
+
 // --- GESTÃO DE SERVIÇOS ---
 async function carregarServicos() {
     try {
@@ -360,22 +418,20 @@ async function carregarServicos() {
     } catch {
         renderizarTabelaServicos([]);
     }
-
-
 }
 
 function renderizarTabelaServicos(lista) {
     const tbody = document.getElementById('tabela-servicos-corpo');
-    tbody.innerHTML = ''; // Limpa a tabela antes de preencher
+    if (!tbody) return;
+    tbody.innerHTML = '';
 
-    if (lista.length === 0) {
+    if (!lista || lista.length === 0) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">Nenhum serviço cadastrado.</td></tr>`;
         return;
     }
 
     lista.forEach(servico => {
         const tr = document.createElement('tr');
-
         tr.innerHTML = `
             <td><strong>${servico.nome}</strong></td>
             <td>${servico.descricao || '-'}</td>
@@ -388,7 +444,6 @@ function renderizarTabelaServicos(lista) {
                 </button>
             </td>
         `;
-
         tbody.appendChild(tr);
     });
 }
@@ -396,7 +451,7 @@ function renderizarTabelaServicos(lista) {
 function atualizarSelectProfissionais(profissionais) {
     const selectServico = document.getElementById('serv-profissional');
     if (selectServico) {
-
+        selectServico.innerHTML = '<option value="">Selecione...</option>';
         if (profissionais) {
             profissionais.forEach(prof => {
                 const opt = document.createElement('option');
@@ -409,7 +464,7 @@ function atualizarSelectProfissionais(profissionais) {
 
     const selectAgenda = document.getElementById('input-agenda-profissional');
     if (selectAgenda) {
-
+        selectAgenda.innerHTML = '<option value="">Todos / Equipe Geral</option>';
         if (profissionais) {
             profissionais.forEach(prof => {
                 const opt = document.createElement('option');
@@ -462,7 +517,6 @@ async function removerServico(servicoId) {
 
         if (response.ok) {
             alert('Serviço removido com sucesso!');
-            // CHAMA A FUNÇÃO DE CARREGAR NOVAMENTE PARA ATUALIZAR A TABELA NA TELA
             carregarServicos();
         } else {
             const erro = await response.json();
@@ -627,15 +681,22 @@ async function carregarConfiguracoes() {
         }
 
         if (config.horario_funcionamento) {
-            const partes = config.horario_funcionamento.split(',');
-            if (partes.length >= 2) {
-                document.getElementById('conf-dias-semana').value = partes[0].trim();
-                const horas = partes[1].match(/\d{2}:\d{2}/g);
-                if (horas && horas.length >= 2) {
-                    document.getElementById('conf-hora-inicio').value = horas[0];
-                    document.getElementById('conf-hora-fim').value = horas[1];
+            const diasSemana = ['segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+            diasSemana.forEach(diaNome => {
+                const regex = new RegExp(`${diaNome}[^:]*:\\s*([\\d:]+)\\s*às\\s*([\\d:]+)`, 'i');
+                const match = config.horario_funcionamento.match(regex);
+                const checkbox = document.getElementById(`ativo-${diaNome}`);
+
+                if (match) {
+                    if (checkbox) checkbox.checked = true;
+                    document.getElementById(`inicio-${diaNome}`).value = match[1];
+                    document.getElementById(`fim-${diaNome}`).value = match[2];
+                    toggleDiaSemana(diaNome);
+                } else if (config.horario_funcionamento.toLowerCase().includes(diaNome) && config.horario_funcionamento.toLowerCase().includes('fechado')) {
+                    if (checkbox) checkbox.checked = false;
+                    toggleDiaSemana(diaNome);
                 }
-            }
+            });
         }
 
         if (config.latitude && config.longitude) {
@@ -662,10 +723,28 @@ async function salvarConfiguracoes(event) {
         .map(chk => chk.value)
         .join(' • ');
 
-    const dias = document.getElementById('conf-dias-semana').value;
-    const hInicio = document.getElementById('conf-hora-inicio').value;
-    const hFim = document.getElementById('conf-hora-fim').value;
-    const horarioFormatado = `${dias}, das ${hInicio} às ${hFim}`;
+    const diasSemanaArr = [
+        { id: 'segunda', nome: 'Segunda' },
+        { id: 'terca', nome: 'Terça' },
+        { id: 'quarta', nome: 'Quarta' },
+        { id: 'quinta', nome: 'Quinta' },
+        { id: 'sexta', nome: 'Sexta' },
+        { id: 'sabado', nome: 'Sábado' },
+        { id: 'domingo', nome: 'Domingo' }
+    ];
+
+    const resumoHorarios = [];
+    diasSemanaArr.forEach(dia => {
+        const checkbox = document.getElementById(`ativo-${dia.id}`);
+        if (checkbox && checkbox.checked) {
+            const hInicio = document.getElementById(`inicio-${dia.id}`).value;
+            const hFim = document.getElementById(`fim-${dia.id}`).value;
+            resumoHorarios.push(`${dia.nome}: ${hInicio} às ${hFim}`);
+        } else {
+            resumoHorarios.push(`${dia.nome}: Fechado`);
+        }
+    });
+    const horarioFormatado = resumoHorarios.join(' | ');
 
     let fotoUrlFinal = null;
 

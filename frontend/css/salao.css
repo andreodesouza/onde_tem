@@ -58,13 +58,13 @@ body {
 }
 
 .btn-login-header {
-  text-decoration: none;
-  background-color: #553a73;
+  background: #553a73;
   color: #fff;
-  padding: 8px 16px;
+  padding: 8px 5px;
   border-radius: 20px;
-  font-size: 0.9rem;
+  text-decoration: none;
   font-weight: 600;
+  font-size: 0.9rem;
 }
 
 /* --- CONTAINER PRINCIPAL --- */
@@ -429,5 +429,10 @@ body {
 
   .agendamento-card-fixo {
     position: static;
+  }
+
+  .logo-texto,
+  .link-landing {
+    display: none !important;
   }
 }
