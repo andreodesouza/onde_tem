@@ -53,7 +53,11 @@ def obter_salao(salao_id: int, db: Session = Depends(get_db)):
     if not usuario or not config:
         raise HTTPException(status_code=404, detail="Salão não encontrado ou sem configurações ativas.")
         
-    servicos_db = db.query(ServicoModel).filter(ServicoModel.empresa_id == salao_id).all()
+    # Adicionado o filtro .filter(ServicoModel.ativo == True) aqui em baixo:
+    servicos_db = db.query(ServicoModel).filter(
+        ServicoModel.empresa_id == salao_id,
+        ServicoModel.ativo == True
+    ).all()
     
     servicos_formatados = []
     for s in servicos_db:
@@ -65,7 +69,7 @@ def obter_salao(salao_id: int, db: Session = Depends(get_db)):
             "descricao": s.descricao or "Sem descrição disponível",
             "duracao_min": s.duracao_minutos,
             "preco": s.preco,
-            "profissional_id": s.profissional_id,  # <-- Adicionado aqui também
+            "profissional_id": s.profissional_id,
             "profissional_nome": prof.nome if prof else "Equipe Geral"
         })
 
