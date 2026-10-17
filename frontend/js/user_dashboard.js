@@ -181,9 +181,9 @@ function acaoDoItem(item) {
         const estiloBadge = item.status === "pendente" ? "background: #fef3c7; color: #d97706;" : "background: #e0f2fe; color: #0284c7;";
 
         return `
-            <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="display: flex; gap: 6px; align-items: center;">
                 <span class="badge" style="${estiloBadge}">${textoBadge}</span>
-                <button type="button" class="btn-cancelar-ag" data-id="${item.id}" data-empresa="${item.empresa_id}" style="background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 999px; font-size: 12px; cursor: pointer; font-weight: 500;">Cancelar</button>
+                <button type="button" class="btn-cancelar-ag" data-id="${item.id}" data-empresa="${item.empresa_id}" style="background: #fee2e2; color: #dc2626; border: none; height: 30px; padding: 0 10px; border-radius: 999px; font-size: 11px; cursor: pointer; font-weight: 500;">Cancelar</button>
             </div>
         `;
     }
@@ -196,14 +196,16 @@ function acaoDoItem(item) {
 function renderItem(item) {
     return `
     <article class="agendamento">
-      <div class="agendamento-icone">${iconeServico}</div>
-      <div class="agendamento-info">
-        <div class="agendamento-meta">
-          <span>${iconeCalendario} ${item.data_hora || item.data}</span>
-          <span>👤 ${item.profissional_nome || 'Equipe Geral'}</span>
+      <div class="agendamento-conteudo-principal">
+        <div class="agendamento-icone">${iconeServico}</div>
+        <div class="agendamento-info">
+          <div class="agendamento-meta">
+            <span>${iconeCalendario} ${item.data_hora || item.data}</span>
+            <span>👤 ${item.profissional_nome || 'Equipe Geral'}</span>
+          </div>
+          <h3>${item.servico_nome || item.servico || 'Procedimento'}</h3>
+          <p>Salão: ${item.salao_nome || 'Estabelecimento'}</p>
         </div>
-        <h3>${item.servico_nome || item.servico || 'Procedimento'}</h3>
-        <p>Salão: ${item.salao_nome || 'Estabelecimento'}</p>
       </div>
       <div class="agendamento-acao">${acaoDoItem(item)}</div>
     </article>`;
