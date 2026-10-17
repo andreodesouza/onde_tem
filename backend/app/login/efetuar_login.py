@@ -13,7 +13,6 @@ def efetuar_login(dados: UsuarioLogin, db: Session = Depends(get_db)):
     
     usuario = db.query(UsuarioModel).filter(UsuarioModel.email == email_limpo).first()
     
-    # Valida se o utilizador existe e se a senha corresponde ao hash guardado
     if not usuario or not verificar_senha(dados.senha, usuario.senha):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, 
@@ -29,6 +28,7 @@ def efetuar_login(dados: UsuarioLogin, db: Session = Depends(get_db)):
     return {
         "token": "token-jwt-exemplo-seguro",
         "usuario": {
+            "id": usuario.id,  # <--- ADICIONE ESTA LINHA OBRIGATÓRIA AQUI
             "nome": usuario.nome or usuario.nome_fantasia,
             "email": usuario.email,
             "tipo": usuario.tipo

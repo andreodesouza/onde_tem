@@ -54,11 +54,19 @@ let dadosUsuario = {};
 try {
     dadosUsuario = JSON.parse(usuarioLogadoStr);
 } catch (e) {
-    dadosUsuario = { nome_fantasia: usuarioLogadoStr, id: 67 };
+    console.error("Erro ao ler dados da sessão do utilizador.");
 }
 
-const EMPRESA_ID = dadosUsuario.id || localStorage.getItem('empresa_id') || 67;
-const NOME_EMPRESA = dadosUsuario.nome_fantasia || dadosUsuario.nome || "Meu Salão";
+// O ID vem obrigatoriamente da base de dados através do login. Sem fallbacks estáticos (adeus 67!).
+const EMPRESA_ID = dadosUsuario.id;
+const NOME_EMPRESA = dadosUsuario.nome || dadosUsuario.nome_fantasia || "Meu Salão";
+
+if (!EMPRESA_ID) {
+    alert("Sessão inválida ou ID da empresa não encontrado. Por favor, faça login novamente.");
+    localStorage.clear();
+    window.location.href = 'login.html';
+    throw new Error("ID de empresa ausente na sessão.");
+}
 
 let ficheiroFotoSelecionado = null;
 
