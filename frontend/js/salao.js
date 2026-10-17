@@ -381,31 +381,223 @@ async function finalizarAgendamento() {
   try {
     usuario = JSON.parse(usuarioLogadoStr);
   } catch (e) {
-    usuario = { nome: "Cliente", id: null };
+    usuario = { nome: "Cliente", email: "cliente@teste.com" };
   }
 
-  for (const servico of carrinhoServicos) {
-    const payload = {
+  if (carrinhoServicos.length === 0 || !horarioSelecionadoSlot) {
+    alert("Selecione pelo menos um serviço e um horário.");
+    return;
+  }
+
+  const btnConfirmar = document.getElementById("btn-continuar-agendamento");
+  if (btnConfirmar) {
+    btnConfirmar.innerText = "A bloquear horário...";
+    btnConfirmar.disabled = true;
+  }
+
+  try {
+    // 1. CRIA O AGENDAMENTO COMO 'PENDENTE' IMEDIATAMENTE (Trava o horário na BD)
+    const servicoPrincipal = carrinhoServicos[0];
+    const payloadAgendamento = {
       empresa_id: parseInt(salaoIdGlobal),
-      servico_id: parseInt(servico.id),
+      servico_id: parseInt(servicoPrincipal.id),
       cliente_nome: usuario.nome || usuario.email || "Cliente Onde Tem",
       data_hora: horarioSelecionadoSlot
     };
 
-    try {
-      const res = await fetch(`${API_URL}/api/agendamentos`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+    const resAgendamento = await fetch(`${API_URL}/api/agendamentos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payloadAgendamento)
+    });
 
-      if (!res.ok) throw new Error("Erro ao registrar agendamento.");
-    } catch (err) {
-      alert("Erro ao efetuar o agendamento. Tente novamente.");
-      return;
+    if (!resAgendamento.ok) {
+      throw new Error("Este horário já não está disponível ou ocorreu um erro ao bloquear.");
+    }
+
+    const dadosAgendamento = await resAgendamento.json();
+    agendamentoIdCriado = dadosAgendamento.id; // Guarda o ID para atualizar o status depois
+
+    // 2. COM O HORÁRIO JÁ TRAVADO, GERA O PIX NO MERCADO PAGO
+    let valorTotal = carrinhoServicos.reduce((acc, s) => acc + s.preco, 0);
+    let nomesServicos = carrinhoServicos.map(s => s.nome).join(", ");
+
+    const responsePix = await fetch(`${API_URL}/api/criar-pix`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        transaction_amount: parseFloat(valorTotal),
+        description: `Agendamento: ${nomesServicos}`,
+        payer_email: usuario.email || "cliente@teste.com",
+        empresa_id: parseInt(salaoIdGlobal),
+        cliente_nome: usuario.nome || usuario.email || "Cliente Onde Tem"
+      })
+    });
+
+    const resultadoPix = await responsePix.json();
+    if (!responsePix.ok) throw new Error(resultadoPix.detail || "Erro ao gerar pagamento Pix.");
+
+    if (btnConfirmar) {
+      btnConfirmar.innerText = "Confirmar Agendamento";
+      btnConfirmar.disabled = false;
+    }
+
+    // 3. ABRE O MODAL DO PIX COM O CRONÓMETRO JÁ COM O HORÁRIO BLOQUEADO NA BD
+    mostrarModalPix(resultadoPix.qr_code, resultadoPix.qr_code_base64);
+
+  } catch (err) {
+    alert(err.message);
+    if (btnConfirmar) {
+      btnConfirmar.innerText = "Confirmar Agendamento";
+      btnConfirmar.disabled = false;
     }
   }
+}
 
-  alert("🎉 Agendamento solicitado com sucesso! Acompanhe o status no seu painel.");
-  window.location.href = "app.html";
+// Função auxiliar modificada para gravar os agendamentos após o cliente interagir com o Pix
+async function confirmarGravacaoAgendamentos() {
+  if (!agendamentoIdCriado) return false;
+
+  try {
+    const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoIdCriado}/atualizar-status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "confirmado" })
+    });
+
+    if (!res.ok) throw new Error("Erro ao atualizar status para confirmado.");
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
+async function cancelarAgendamentoPendente() {
+  if (!agendamentoIdCriado) return;
+
+  try {
+    const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoIdCriado}/atualizar-status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelado" })
+    });
+
+    if (!res.ok) throw new Error("Erro ao cancelar o agendamento.");
+    console.log("Agendamento cancelado com sucesso por expiração/desistência.");
+  } catch (err) {
+    console.error("Erro ao cancelar agendamento expirado:", err);
+  }
+}
+
+let temporizadorPixId = null;
+
+function mostrarModalPix(copiaECola, qrBase64) {
+  // Limpa qualquer temporizador anterior se houver
+  if (temporizadorPixId) clearInterval(temporizadorPixId);
+
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+        display: flex; justify-content: center; align-items: center; z-index: 99999;
+        font-family: 'Poppins', sans-serif;
+    `;
+
+  overlay.innerHTML = `
+        <div style="background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="color: #472969; font-size: 20px; font-weight: 600; margin-bottom: 4px;">Pagamento via Pix</h3>
+            <p id="texto-tempo-pix" style="color: #e53e3e; font-size: 13px; font-weight: 600; margin-bottom: 12px;">Expira em: 05:00</p>
+            <p style="color: #718096; font-size: 12px; margin-bottom: 14px;">Escaneie o QR Code abaixo ou utilize o Pix Copia e Cola para concluir.</p>
+            
+            ${qrBase64 ? `<img src="data:image/png;base64,${qrBase64}" alt="QR Code Pix" style="width: 160px; height: 160px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">` : ''}
+            
+            <textarea readonly style="width: 100%; height: 60px; font-size: 11px; padding: 8px; border: 1px solid #cbd5e0; border-radius: 8px; resize: none; background: #f8fafc; margin-bottom: 12px;">${copiaECola}</textarea>
+            
+            <button id="btn-copiar-pix" style="background: #472969; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 8px;">📋 Copiar Código Pix</button>
+            
+            <button id="btn-simular-aprovado" style="background: #27ae60; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-bottom: 8px;">💳 Simular Pagamento Aprovado (Teste)</button>
+            
+            <button id="btn-fechar-pix" style="background: #e2e8f0; color: #4a5568; border: none; width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;">Cancelar / Fechar</button>
+        </div>
+    `;
+
+  document.body.appendChild(overlay);
+
+  // Botão Copiar Pix
+  document.getElementById("btn-copiar-pix").addEventListener("click", () => {
+    navigator.clipboard.writeText(copiaECola);
+    alert("Código Pix Copia e Cola copiado com sucesso!");
+  });
+
+  // Botão Simular Aprovado
+  document.getElementById("btn-simular-aprovado").addEventListener("click", async () => {
+    if (temporizadorPixId) clearInterval(temporizadorPixId);
+    const btn = document.getElementById("btn-simular-aprovado");
+    btn.innerText = "A processar pagamento e agendamento...";
+    btn.disabled = true;
+
+    const sucesso = await confirmarGravacaoAgendamentos();
+
+    if (sucesso) {
+      alert("🎉 Pagamento simulado com sucesso e agendamento registado!");
+      document.body.removeChild(overlay);
+      window.location.href = "user_dashboard.html";
+    } else {
+      btn.innerText = "💳 Simular Pagamento Aprovado (Teste)";
+      btn.disabled = false;
+    }
+  });
+
+  // Botão Cancelar Manual
+  document.getElementById("btn-fechar-pix").addEventListener("click", async () => {
+    if (temporizadorPixId) clearInterval(temporizadorPixId);
+    await cancelarAgendamentoPendente();
+    document.body.removeChild(overlay);
+  });
+
+  // --- CONFIGURAÇÃO DO CRONÓMETRO DE 5 MINUTOS ---
+  let tempoRestante = 60; // 60 segundos = 1 minuto
+  const elementoTempo = document.getElementById("texto-tempo-pix");
+
+  temporizadorPixId = setInterval(async () => {
+    tempoRestante--;
+
+    const minutos = Math.floor(tempoRestante / 60);
+    const segundos = tempoRestante % 60;
+
+    elementoTempo.innerText = `Expira em: ${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+
+    if (tempoRestante <= 0) {
+      clearInterval(temporizadorPixId);
+      alert("⏰ O tempo para pagamento expirou. O agendamento foi cancelado e o horário foi libertado.");
+
+      // Cancela o agendamento no backend para libertar o horário
+      await cancelarAgendamentoPendente();
+
+      if (document.body.contains(overlay)) {
+        document.body.removeChild(overlay);
+      }
+      window.location.reload();
+    }
+  }, 1000);
+}
+
+// Função auxiliar para cancelar/libertar o horário se expirar ou for cancelado
+// Função auxiliar para cancelar/libertar o horário se expirar ou for cancelado
+async function cancelarAgendamentoPendente() {
+  if (!agendamentoIdCriado) return;
+
+  try {
+    const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoIdCriado}/atualizar-status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelado" })
+    });
+
+    if (!res.ok) throw new Error("Erro ao cancelar o agendamento.");
+    console.log("Agendamento cancelado com sucesso.");
+  } catch (err) {
+    console.error("Erro ao cancelar agendamento:", err);
+  }
 }

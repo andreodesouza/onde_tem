@@ -330,22 +330,23 @@ async function cancelarAgendamentoCliente(evento) {
     if (!confirm("Deseja realmente cancelar este agendamento?")) return;
 
     const agendamentoId = botao.dataset.id;
-    const empresaId = botao.dataset.empresa;
+    // O empresaId já nem é estritamente necessário na URL se usarmos a rota direta, mas mantemos se precisar
 
     try {
-        const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoId}/status?empresa_id=${empresaId}`, {
-            method: "PUT",
+        const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoId}/atualizar-status`, {
+            method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ status: "cancelado" })
         });
 
         if (res.ok) {
-            alert("Agendamento cancelado com sucesso!");
+            alert("Agendamento cancelado com sucesso e horário libertado!");
             carregarDadosCliente(obterUsuario());
         } else {
             alert("Erro ao cancelar o agendamento.");
         }
     } catch (err) {
+        console.error(err);
         alert("Erro de conexão.");
     }
 }
