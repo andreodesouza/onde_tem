@@ -181,9 +181,9 @@ function acaoDoItem(item) {
         const estiloBadge = item.status === "pendente" ? "background: #fef3c7; color: #d97706;" : "background: #e0f2fe; color: #0284c7;";
 
         return `
-            <div style="display: flex; gap: 6px; align-items: center;">
+            <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-end;">
                 <span class="badge" style="${estiloBadge}">${textoBadge}</span>
-                <button type="button" class="btn-cancelar-ag" data-id="${item.id}" data-empresa="${item.empresa_id}" style="background: #fee2e2; color: #dc2626; border: none; height: 30px; padding: 0 10px; border-radius: 999px; font-size: 11px; cursor: pointer; font-weight: 500;">Cancelar</button>
+                <button type="button" class="btn-cancelar-ag" data-id="${item.id}" data-empresa="${item.empresa_id}" style="background: #fee2e2; color: #dc2626; border: none; width: 95px; height: 26px; border-radius: 999px; font-size: 11px; cursor: pointer; font-weight: 500;">Cancelar</button>
             </div>
         `;
     }

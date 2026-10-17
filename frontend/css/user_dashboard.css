@@ -417,22 +417,28 @@ input {
   flex-shrink: 0;
   margin-left: auto;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-end;
   gap: 6px;
 }
 
 /* Badges e Botões reduzidos e elegantes */
 .badge,
-.btn-confirmar {
+.btn-confirmar,
+.btn-cancelar-ag {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 30px;
-  padding: 0 12px;
+  width: 95px;
+  /* Define uma largura fixa para ficarem alinhados e bonitos */
+  height: 26px;
+  padding: 0 8px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
+  text-align: center;
+  box-sizing: border-box;
 }
 
 .badge {
