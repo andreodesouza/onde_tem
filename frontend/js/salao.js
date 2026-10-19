@@ -69,6 +69,7 @@ if (!usuarioLogadoStr) {
 let carrinhoServicos = [];
 let horarioSelecionadoSlot = null;
 let salaoIdGlobal = null;
+let agendamentoIdCriado = null;
 
 document.addEventListener("DOMContentLoaded", () => {
   verificarEstadoLoginHeader();
@@ -175,13 +176,11 @@ function renderizarDetalhes(salao) {
   document.getElementById("salao-especialidades").innerText = salao.servicos;
   document.getElementById("salao-endereco").innerText = `📍 ${salao.endereco || "Endereço não informado"}`;
 
-  // --- NOVO TRATAMENTO DE HORÁRIOS EM ETIQUETAS ---
   const containerHorarioLista = document.getElementById("salao-horario-lista");
   if (containerHorarioLista) {
     containerHorarioLista.innerHTML = "";
     const horarioTexto = salao.horario || "Horário a consultar";
 
-    // Se vier no formato novo separado por " | "
     if (horarioTexto.includes("|")) {
       const diasArray = horarioTexto.split("|");
       diasArray.forEach(item => {
@@ -191,14 +190,12 @@ function renderizarDetalhes(salao) {
         containerHorarioLista.appendChild(span);
       });
     } else {
-      // Fallback caso seja um texto simples antigo
       const span = document.createElement("span");
       span.style.cssText = "font-size: 0.85rem; color: #4a5568;";
       span.textContent = horarioTexto;
       containerHorarioLista.appendChild(span);
     }
   }
-  // ---------------------------------------------
 
   document.getElementById("salao-rating").innerText = salao.avaliacao?.toFixed(1) || "5.0";
   document.getElementById("salao-reviews").innerText = `(${salao.total_avaliacoes || 0})`;
@@ -225,7 +222,6 @@ function renderizarServicos(servicos) {
     const card = document.createElement("div");
     card.className = "item-servico";
 
-    // Mapeia todas as possíveis variações de nome do ID do profissional vindas da API
     const profId = servico.profissional_id !== undefined ? servico.profissional_id :
       (servico.id_profissional !== undefined ? servico.id_profissional : null);
 
@@ -234,7 +230,7 @@ function renderizarServicos(servicos) {
         <h3>${servico.nome}</h3>
         <p>${servico.descricao || ''}</p>
         <p style="font-size: 0.8rem; color: #482868; margin-top: 4px; font-weight: 500;">
-          👤 Profissional: ${servico.profissional_nome || 'Equipe Geral'} (ID: ${profId})
+          👤 Profissional: ${servico.profissional_nome || 'Equipe Geral'}
         </p>
         <span class="servico-meta">⏱️ Duração média: ${servico.duracao_min} min</span>
       </div>
@@ -251,8 +247,6 @@ function renderizarServicos(servicos) {
 }
 
 function alternarServico(id, nome, preco, profissionalId) {
-  console.log("-> Serviço:", nome, "| ID do Profissional associado:", profissionalId);
-
   const index = carrinhoServicos.findIndex(s => s.id === id);
   const btn = document.getElementById(`btn-srv-${id}`);
 
@@ -274,9 +268,7 @@ function alternarServico(id, nome, preco, profissionalId) {
 
   const inputData = document.getElementById("input-data-agendamento");
   if (inputData && inputData.value) {
-    // Se houver serviços no carrinho, pega o profissional_id do primeiro serviço selecionado
     const profFiltro = carrinhoServicos.length > 0 ? carrinhoServicos[0].profissional_id : null;
-    console.log("-> A filtrar horários na API para o profissional_id:", profFiltro);
     carregarHorariosLivres(salaoIdGlobal, inputData.value, profFiltro);
   }
 }
@@ -376,7 +368,11 @@ function validarBotaoContinuar() {
   }
 }
 
-async function finalizarAgendamento() {
+// ==========================================
+// NOVO FLUXO: MODAL DE RESUMO E PAGAMENTO
+// ==========================================
+
+function finalizarAgendamento() {
   let usuario;
   try {
     usuario = JSON.parse(usuarioLogadoStr);
@@ -389,14 +385,70 @@ async function finalizarAgendamento() {
     return;
   }
 
-  const btnConfirmar = document.getElementById("btn-continuar-agendamento");
-  if (btnConfirmar) {
-    btnConfirmar.innerText = "A bloquear horário...";
-    btnConfirmar.disabled = true;
-  }
+  mostrarModalResumoPagamento(usuario);
+}
 
+function mostrarModalResumoPagamento(usuario) {
+  let valorTotal = carrinhoServicos.reduce((acc, s) => acc + s.preco, 0);
+  let nomesServicos = carrinhoServicos.map(s => s.nome).join(", ");
+
+  const overlay = document.createElement("div");
+  overlay.id = "modal-resumo-overlay";
+  overlay.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+    display: flex; justify-content: center; align-items: center; z-index: 99999;
+    font-family: 'Poppins', sans-serif;
+  `;
+
+  overlay.innerHTML = `
+    <div style="background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+        <h3 style="color: #472969; font-size: 20px; font-weight: 600; margin-bottom: 12px; text-align: center; margin-top: 0;">Resumo do Pedido</h3>
+        
+        <div style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 15px; font-size: 13px; color: #4a5568;">
+            <p style="margin: 0 0 6px 0;"><strong>Serviços:</strong> ${nomesServicos}</p>
+            <p style="margin: 0 0 6px 0;"><strong>Data e Hora:</strong> ${horarioSelecionadoSlot}</p>
+            <p style="margin: 0;"><strong>Total a Pagar:</strong> <span style="color: #27ae60; font-weight: bold; font-size: 15px;">R$ ${valorTotal.toFixed(2).replace('.', ',')}</span></p>
+        </div>
+
+        <h4 style="color: #2d3748; font-size: 14px; font-weight: 600; margin-bottom: 8px; margin-top: 0;">Escolha a forma de pagamento:</h4>
+        
+        <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; background: #fff;">
+                <input type="radio" name="forma-pagamento" value="pix" checked style="accent-color: #472969; transform: scale(1.2);">
+                <span>⚡ Pix (Pagamento Instantâneo)</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 10px; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; background: #fff;">
+                <input type="radio" name="forma-pagamento" value="cartao" style="accent-color: #472969; transform: scale(1.2);">
+                <span>💳 Cartão de Crédito</span>
+            </label>
+        </div>
+        
+        <button id="btn-confirmar-escolha" style="background: #472969; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 8px;">Avançar</button>
+        <button id="btn-fechar-resumo" style="background: #e2e8f0; color: #4a5568; border: none; width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;">Cancelar</button>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("btn-fechar-resumo").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+  });
+
+  document.getElementById("btn-confirmar-escolha").addEventListener("click", async () => {
+    const opcaoSelecionada = document.querySelector('input[name="forma-pagamento"]:checked').value;
+    document.body.removeChild(overlay);
+
+    if (opcaoSelecionada === "pix") {
+      await processarAgendamentoPix(usuario);
+    } else {
+      await processarAgendamentoCartao(usuario);
+    }
+  });
+}
+
+async function processarAgendamentoPix(usuario) {
   try {
-    // 1. CRIA O AGENDAMENTO COMO 'PENDENTE' IMEDIATAMENTE (Trava o horário na BD)
     const servicoPrincipal = carrinhoServicos[0];
     const payloadAgendamento = {
       empresa_id: parseInt(salaoIdGlobal),
@@ -416,9 +468,8 @@ async function finalizarAgendamento() {
     }
 
     const dadosAgendamento = await resAgendamento.json();
-    agendamentoIdCriado = dadosAgendamento.id; // Guarda o ID para atualizar o status depois
+    agendamentoIdCriado = dadosAgendamento.id;
 
-    // 2. COM O HORÁRIO JÁ TRAVADO, GERA O PIX NO MERCADO PAGO
     let valorTotal = carrinhoServicos.reduce((acc, s) => acc + s.preco, 0);
     let nomesServicos = carrinhoServicos.map(s => s.nome).join(", ");
 
@@ -437,63 +488,117 @@ async function finalizarAgendamento() {
     const resultadoPix = await responsePix.json();
     if (!responsePix.ok) throw new Error(resultadoPix.detail || "Erro ao gerar pagamento Pix.");
 
-    if (btnConfirmar) {
-      btnConfirmar.innerText = "Confirmar Agendamento";
-      btnConfirmar.disabled = false;
-    }
-
-    // 3. ABRE O MODAL DO PIX COM O CRONÓMETRO JÁ COM O HORÁRIO BLOQUEADO NA BD
     mostrarModalPix(resultadoPix.qr_code, resultadoPix.qr_code_base64);
 
   } catch (err) {
     alert(err.message);
-    if (btnConfirmar) {
-      btnConfirmar.innerText = "Confirmar Agendamento";
-      btnConfirmar.disabled = false;
+  }
+}
+
+async function processarAgendamentoCartao(usuario) {
+  try {
+    const servicoPrincipal = carrinhoServicos[0];
+    const payloadAgendamento = {
+      empresa_id: parseInt(salaoIdGlobal),
+      servico_id: parseInt(servicoPrincipal.id),
+      cliente_nome: usuario.nome || usuario.email || "Cliente Onde Tem",
+      data_hora: horarioSelecionadoSlot
+    };
+
+    const resAgendamento = await fetch(`${API_URL}/api/agendamentos`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payloadAgendamento)
+    });
+
+    if (!resAgendamento.ok) {
+      throw new Error("Este horário já não está disponível.");
     }
-  }
-}
 
-// Função auxiliar modificada para gravar os agendamentos após o cliente interagir com o Pix
-async function confirmarGravacaoAgendamentos() {
-  if (!agendamentoIdCriado) return false;
+    const dadosAgendamento = await resAgendamento.json();
+    agendamentoIdCriado = dadosAgendamento.id;
 
-  try {
-    const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoIdCriado}/atualizar-status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "confirmado" })
-    });
+    mostrarModalCartao();
 
-    if (!res.ok) throw new Error("Erro ao atualizar status para confirmado.");
-    return true;
   } catch (err) {
-    console.error(err);
-    return false;
+    alert(err.message);
   }
 }
 
-async function cancelarAgendamentoPendente() {
-  if (!agendamentoIdCriado) return;
+// ==========================================
+// MODAL DO CARTÃO DE CRÉDITO
+// ==========================================
+function mostrarModalCartao() {
+  const overlay = document.createElement("div");
+  overlay.style.cssText = `
+        position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+        display: flex; justify-content: center; align-items: center; z-index: 99999;
+        font-family: 'Poppins', sans-serif;
+    `;
 
-  try {
-    const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoIdCriado}/atualizar-status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "cancelado" })
-    });
+  overlay.innerHTML = `
+        <div style="background: #fff; padding: 30px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <h3 style="color: #472969; font-size: 20px; font-weight: 600; margin-bottom: 12px; text-align: center; margin-top: 0;">Pagamento com Cartão</h3>
+            
+            <div style="margin-bottom: 10px;">
+                <label style="font-size: 12px; color: #718096; font-weight: 500; display: block; margin-bottom: 4px;">Número do Cartão</label>
+                <input type="text" placeholder="0000 0000 0000 0000" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; box-sizing: border-box;">
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: #718096; font-weight: 500; display: block; margin-bottom: 4px;">Validade</label>
+                    <input type="text" placeholder="MM/AA" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; box-sizing: border-box;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="font-size: 12px; color: #718096; font-weight: 500; display: block; margin-bottom: 4px;">CVV</label>
+                    <input type="text" placeholder="123" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; box-sizing: border-box;">
+                </div>
+            </div>
 
-    if (!res.ok) throw new Error("Erro ao cancelar o agendamento.");
-    console.log("Agendamento cancelado com sucesso por expiração/desistência.");
-  } catch (err) {
-    console.error("Erro ao cancelar agendamento expirado:", err);
-  }
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 12px; color: #718096; font-weight: 500; display: block; margin-bottom: 4px;">Nome no Cartão</label>
+                <input type="text" placeholder="Nome impresso no cartão" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 13px; box-sizing: border-box;">
+            </div>
+            
+            <button id="btn-pagar-cartao" style="background: #27ae60; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-bottom: 8px;">Pagar e Confirmar</button>
+            <button id="btn-cancelar-cartao" style="background: #e2e8f0; color: #4a5568; border: none; width: 100%; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;">Cancelar / Voltar</button>
+        </div>
+    `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("btn-pagar-cartao").addEventListener("click", async () => {
+    const btn = document.getElementById("btn-pagar-cartao");
+    btn.innerText = "A processar pagamento...";
+    btn.disabled = true;
+
+    const sucesso = await confirmarGravacaoAgendamentos();
+
+    if (sucesso) {
+      alert("🎉 Pagamento com cartão aprovado e agendamento registado com sucesso!");
+      document.body.removeChild(overlay);
+      window.location.href = "user_dashboard.html";
+    } else {
+      btn.innerText = "Pagar e Confirmar";
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById("btn-cancelar-cartao").addEventListener("click", async () => {
+    await cancelarAgendamentoPendente();
+    document.body.removeChild(overlay);
+    window.location.reload();
+  });
 }
 
+// ==========================================
+// MODAL DO PIX E CRONÓMETRO
+// ==========================================
 let temporizadorPixId = null;
 
 function mostrarModalPix(copiaECola, qrBase64) {
-  // Limpa qualquer temporizador anterior se houver
   if (temporizadorPixId) clearInterval(temporizadorPixId);
 
   const overlay = document.createElement("div");
@@ -524,13 +629,11 @@ function mostrarModalPix(copiaECola, qrBase64) {
 
   document.body.appendChild(overlay);
 
-  // Botão Copiar Pix
   document.getElementById("btn-copiar-pix").addEventListener("click", () => {
     navigator.clipboard.writeText(copiaECola);
     alert("Código Pix Copia e Cola copiado com sucesso!");
   });
 
-  // Botão Simular Aprovado
   document.getElementById("btn-simular-aprovado").addEventListener("click", async () => {
     if (temporizadorPixId) clearInterval(temporizadorPixId);
     const btn = document.getElementById("btn-simular-aprovado");
@@ -549,15 +652,14 @@ function mostrarModalPix(copiaECola, qrBase64) {
     }
   });
 
-  // Botão Cancelar Manual
   document.getElementById("btn-fechar-pix").addEventListener("click", async () => {
     if (temporizadorPixId) clearInterval(temporizadorPixId);
     await cancelarAgendamentoPendente();
     document.body.removeChild(overlay);
+    window.location.reload();
   });
 
-  // --- CONFIGURAÇÃO DO CRONÓMETRO DE 5 MINUTOS ---
-  let tempoRestante = 60; // 60 segundos = 1 minuto
+  let tempoRestante = 300; // 5 minutos
   const elementoTempo = document.getElementById("texto-tempo-pix");
 
   temporizadorPixId = setInterval(async () => {
@@ -572,7 +674,6 @@ function mostrarModalPix(copiaECola, qrBase64) {
       clearInterval(temporizadorPixId);
       alert("⏰ O tempo para pagamento expirou. O agendamento foi cancelado e o horário foi libertado.");
 
-      // Cancela o agendamento no backend para libertar o horário
       await cancelarAgendamentoPendente();
 
       if (document.body.contains(overlay)) {
@@ -583,8 +684,27 @@ function mostrarModalPix(copiaECola, qrBase64) {
   }, 1000);
 }
 
-// Função auxiliar para cancelar/libertar o horário se expirar ou for cancelado
-// Função auxiliar para cancelar/libertar o horário se expirar ou for cancelado
+// ==========================================
+// FUNÇÕES AUXILIARES DE STATUS
+// ==========================================
+async function confirmarGravacaoAgendamentos() {
+  if (!agendamentoIdCriado) return false;
+
+  try {
+    const res = await fetch(`${API_URL}/api/agendamentos/${agendamentoIdCriado}/atualizar-status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "confirmado" })
+    });
+
+    if (!res.ok) throw new Error("Erro ao atualizar status para confirmado.");
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
 async function cancelarAgendamentoPendente() {
   if (!agendamentoIdCriado) return;
 
@@ -596,7 +716,7 @@ async function cancelarAgendamentoPendente() {
     });
 
     if (!res.ok) throw new Error("Erro ao cancelar o agendamento.");
-    console.log("Agendamento cancelado com sucesso.");
+    console.log("Agendamento cancelado com sucesso e horário libertado.");
   } catch (err) {
     console.error("Erro ao cancelar agendamento:", err);
   }
