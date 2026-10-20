@@ -11,6 +11,7 @@ from.configuracoes_salao_dashboard.agenda import router as agenda_router
 from .configuracoes_salao_dashboard.agendamentos import router as agendamentos_router
 from .configuracoes_user_dashboard import configuracoes_user_dashboard as cfg_user # Ou o nome do seu import
 from.pagamento.pagamento import router as pagamento_router
+from .notificacao.notificacao import router as notificacao_router
 
 # Cria as tabelas automaticamente se não existirem
 Base.metadata.create_all(bind=engine)
@@ -22,6 +23,7 @@ app = FastAPI(title="API Onde Tem?", version="1.0.0")
 def health_check():
     return {"status": "ok"}
 
+app.include_router(notificacao_router)
 
 app.include_router(configuracoes_router)  
 

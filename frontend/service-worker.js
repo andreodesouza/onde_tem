@@ -1,54 +1,76 @@
 // service-worker.js
 
-const CACHE_NAME = "belezaja-cache-v1";
+const CACHE_NAME = "ondetem-cache-v2";
 const urlsToCache = [
   "./",
   "./app.html",
-  "./style.css",
-  "./script.js",
-  "./manifest.json",
-  "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css",
-  "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css",
+  "./user_dashboard.html",
+  "./css/user_dashboard.css",
+  "./js/user_dashboard.js",
+  "./manifest.json"
 ];
 
 self.addEventListener("install", (event) => {
   // Pré-cachear arquivos importantes na instalação
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("Cache aberto");
+      console.log("Cache aberto e ficheiros essenciais guardados");
       return cache.addAll(urlsToCache);
-    }),
+    })
   );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  // Limpar caches antigos se houver atualizações
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          if (cacheName !== CACHE_NAME) {
+            console.log("A remover cache antigo:", cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
   // Responder com cache se estiver offline, ou buscar na rede
   event.respondWith(
     caches.match(event.request).then((response) => {
-      // Cache hit - retornar resposta
       if (response) {
         return response;
       }
       return fetch(event.request);
-    }),
+    })
   );
 });
 
 self.addEventListener("push", (event) => {
   const dados = event.data?.json() ?? {
-    title: "Nova Notificação",
-    body: "Você tem uma mensagem!",
-    icon: "/icons/icon-192x192.png",
+    title: "Onde Tem? - Lembrete",
+    body: "Você tem um agendamento próximo!",
+    icon: "assets/img/icon-192.png",
   };
+
   event.waitUntil(
     self.registration.showNotification(dados.title, {
       body: dados.body,
       icon: dados.icon,
-      badge: "/icons/icon-72x72.png",
-    }),
+      badge: "assets/img/icon-72.png",
+      vibrate: [200, 100, 200]
+    })
   );
 });
+
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  event.waitUntil(clients.openWindow("/"));
+  // Quando o cliente clica na notificação, abre diretamente o dashboard do utilizador
+  event.waitUntil(
+    clients.openWindow("/user_dashboard.html")
+  );
 });
