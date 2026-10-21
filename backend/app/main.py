@@ -23,7 +23,9 @@ app = FastAPI(title="API Onde Tem?", version="1.0.0")
 def health_check():
     return {"status": "ok"}
 
-app.include_router(notificacao_router)
+
+# Regista o router com o prefixo /api/notificacoes
+app.include_router(notificacao_router, prefix="/api/notificacoes", tags=["Notificacoes"])
 
 app.include_router(configuracoes_router)  
 
