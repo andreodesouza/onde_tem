@@ -9,11 +9,11 @@ from .saloes.saloes import router as saloes_router
 from .configuracoes_salao_dashboard.servicos_profissionais import router as servicos_profissionais_router
 from.configuracoes_salao_dashboard.agenda import router as agenda_router
 from .configuracoes_salao_dashboard.agendamentos import router as agendamentos_router
-from .configuracoes_user_dashboard import configuracoes_user_dashboard as cfg_user # Ou o nome do seu import
+from .configuracoes_user_dashboard import configuracoes_user_dashboard as cfg_user 
 from.pagamento.pagamento import router as pagamento_router
 from .notificacao.notificacao import router as notificacao_router
 
-# Cria as tabelas automaticamente se não existirem
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Onde Tem?", version="1.0.0")
@@ -24,7 +24,6 @@ def health_check():
     return {"status": "ok"}
 
 
-# Regista o router com o prefixo /api/notificacoes
 app.include_router(notificacao_router, prefix="/api/notificacoes", tags=["Notificacoes"])
 
 app.include_router(configuracoes_router)  
